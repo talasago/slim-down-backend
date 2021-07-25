@@ -1,0 +1,294 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Metadata:
+  Generator: "former2"
+Description: ""
+Resources:
+  CognitoUserPool:
+    Type: "AWS::Cognito::UserPool"
+    Properties:
+      UserPoolName: "SlimDown"
+      Policies:
+        PasswordPolicy:
+          MinimumLength: 8
+          RequireUppercase: true
+          RequireLowercase: true
+          RequireNumbers: true
+          RequireSymbols: true
+          TemporaryPasswordValidityDays: 7
+      LambdaConfig: {}
+      Schema: # emailとnameとcom_id以外は要らないかも
+      -
+        Name: "sub"
+        AttributeDataType: "String"
+        DeveloperOnlyAttribute: false
+        Mutable: false
+        Required: truea
+        StringAttributeConstraints:
+          MinLength: "1"
+          MaxLength: "2048"
+      -
+        Name: "name"
+        AttributeDataType: "String"
+        DeveloperOnlyAttribute: false
+        Mutable: true
+        Required: false
+        StringAttributeConstraints:
+          MinLength: "0"
+          MaxLength: "2048"
+      -
+        Name: "given_name"
+        AttributeDataType: "String"
+        DeveloperOnlyAttribute: false
+        Mutable: true
+        Required: false
+        StringAttributeConstraints:
+          MinLength: "0"
+          MaxLength: "2048"
+      -
+        Name: "family_name"
+        AttributeDataType: "String"
+        DeveloperOnlyAttribute: false
+        Mutable: true
+        Required: false
+        StringAttributeConstraints:
+          MinLength: "0"
+          MaxLength: "2048"
+      -
+        Name: "middle_name"
+        AttributeDataType: "String"
+        DeveloperOnlyAttribute: false
+        Mutable: true
+        Required: false
+        StringAttributeConstraints:
+          MinLength: "0"
+          MaxLength: "2048"
+      -
+        Name: "nickname"
+        AttributeDataType: "String"
+        DeveloperOnlyAttribute: false
+        Mutable: true
+        Required: false
+        StringAttributeConstraints:
+          MinLength: "0"
+          MaxLength: "2048"
+      -
+        Name: "preferred_username"
+        AttributeDataType: "String"
+        DeveloperOnlyAttribute: false
+        Mutable: true
+        Required: false
+        StringAttributeConstraints:
+          MinLength: "0"
+          MaxLength: "2048"
+      -
+        Name: "profile"
+        AttributeDataType: "String"
+        DeveloperOnlyAttribute: false
+        Mutable: true
+        Required: false
+        StringAttributeConstraints:
+          MinLength: "0"
+          MaxLength: "2048"
+      -
+        Name: "picture"
+        AttributeDataType: "String"
+        DeveloperOnlyAttribute: false
+        Mutable: true
+        Required: false
+        StringAttributeConstraints:
+          MinLength: "0"
+          MaxLength: "2048"
+      -
+        Name: "website"
+        AttributeDataType: "String"
+        DeveloperOnlyAttribute: false
+        Mutable: true
+        Required: false
+        StringAttributeConstraints:
+          MinLength: "0"
+          MaxLength: "2048"
+      -
+        Name: "email"
+        AttributeDataType: "String"
+        DeveloperOnlyAttribute: false
+        Mutable: true
+        Required: true
+        StringAttributeConstraints:
+          MinLength: "0"
+          MaxLength: "2048"
+      -
+        Name: "email_verified"
+        AttributeDataType: "Boolean"
+        DeveloperOnlyAttribute: false
+        Mutable: true
+        Required: false
+      -
+        Name: "gender"
+        AttributeDataType: "String"
+        DeveloperOnlyAttribute: false
+        Mutable: true
+        Required: false
+        StringAttributeConstraints:
+          MinLength: "0"
+          MaxLength: "2048"
+      -
+        Name: "birthdate"
+        AttributeDataType: "String"
+        DeveloperOnlyAttribute: false
+        Mutable: true
+        Required: false
+        StringAttributeConstraints:
+          MinLength: "10"
+          MaxLength: "10"
+      -
+        Name: "zoneinfo"
+        AttributeDataType: "String"
+        DeveloperOnlyAttribute: false
+        Mutable: true
+        Required: false
+        StringAttributeConstraints:
+          MinLength: "0"
+          MaxLength: "2048"
+      -
+        Name: "locale"
+        AttributeDataType: "String"
+        DeveloperOnlyAttribute: false
+        Mutable: true
+        Required: false
+        StringAttributeConstraints:
+          MinLength: "0"
+          MaxLength: "2048"
+      -
+        Name: "phone_number"
+        AttributeDataType: "String"
+        DeveloperOnlyAttribute: false
+        Mutable: true
+        Required: false
+        StringAttributeConstraints:
+          MinLength: "0"
+          MaxLength: "2048"
+      -
+        Name: "phone_number_verified"
+        AttributeDataType: "Boolean"
+        DeveloperOnlyAttribute: false
+        Mutable: true
+        Required: false
+      -
+        Name: "address"
+        AttributeDataType: "String"
+        DeveloperOnlyAttribute: false
+        Mutable: true
+        Required: false
+        StringAttributeConstraints:
+          MinLength: "0"
+          MaxLength: "2048"
+      -
+        Name: "updated_at"
+        AttributeDataType: "Number"
+        DeveloperOnlyAttribute: false
+        Mutable: true
+        Required: false
+        NumberAttributeConstraints:
+          MinValue: "0"
+      -
+        Name: "custom:community_id"
+        AttributeDataType: "String"
+        DeveloperOnlyAttribute: false
+        Mutable: true
+        Required: false
+        StringAttributeConstraints:
+          MinLength: "1"
+          MaxLength: "256"
+      AutoVerifiedAttributes:
+      - "email"
+      AliasAttributes:
+      - "email"
+      SmsVerificationMessage: " 検証コードは {####} です。"
+      EmailVerificationMessage: " 検証コードは {####} です。"
+      EmailVerificationSubject: " 検証コード"
+      SmsAuthenticationMessage: " 認証コードは {####} です。"
+      MfaConfiguration: "OFF"
+      EmailConfiguration:
+        EmailSendingAccount: "COGNITO_DEFAULT"
+      AdminCreateUserConfig:
+        AllowAdminCreateUserOnly: false
+        InviteMessageTemplate:
+          SMSMessage: " ユーザー名は {username}、仮パスワードは {####} です。"
+          EmailMessage: " ユーザー名は {username}、仮パスワードは {####} です。"
+          EmailSubject: " 仮パスワード"
+      UserPoolTags: {}
+      AccountRecoverySetting:
+        RecoveryMechanisms:
+        -
+          Priority: 1
+          Name: "verified_email"
+        -
+          Priority: 2
+          Name: "verified_phone_number"
+      UsernameConfiguration:
+        CaseSensitive: false
+      VerificationMessageTemplate:
+        SmsMessage: " 検証コードは {####} です。"
+        EmailMessage: " 検証コードは {####} です。"
+        EmailSubject: " 検証コード"
+        DefaultEmailOption: "CONFIRM_WITH_CODE"
+
+  CognitoUserPoolClient:
+    Type: "AWS::Cognito::UserPoolClient"
+    Properties:
+      UserPoolId: !Ref CognitoUserPool
+      ClientName: "SlimDownApp"
+      RefreshTokenValidity: 30
+      ReadAttributes:
+      - "address"
+      - "birthdate"
+      - "custom:community_id"
+      - "email"
+      - "email_verified"
+      - "family_name"
+      - "gender"
+      - "given_name"
+      - "locale"
+      - "middle_name"
+      - "name"
+      - "nickname"
+      - "phone_number"
+      - "phone_number_verified"
+      - "picture"
+      - "preferred_username"
+      - "profile"
+      - "updated_at"
+      - "website"
+      - "zoneinfo"
+      WriteAttributes:
+      - "address"
+      - "birthdate"
+      - "custom:community_id"
+      - "email"
+      - "family_name"
+      - "gender"
+      - "given_name"
+      - "locale"
+      - "middle_name"
+      - "name"
+      - "nickname"
+      - "phone_number"
+      - "picture"
+      - "preferred_username"
+      - "profile"
+      - "updated_at"
+      - "website"
+      - "zoneinfo"
+      ExplicitAuthFlows:
+      - "ALLOW_CUSTOM_AUTH"
+      - "ALLOW_REFRESH_TOKEN_AUTH"
+      - "ALLOW_USER_SRP_AUTH"
+      GenerateSecret: true
+      PreventUserExistenceErrors: "ENABLED"
+      AllowedOAuthFlowsUserPoolClient: false
+      IdTokenValidity: 60
+      AccessTokenValidity: 60
+      TokenValidityUnits:
+        AccessToken: "minutes"
+        IdToken: "minutes"
+        RefreshToken: "days"
