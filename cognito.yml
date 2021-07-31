@@ -22,7 +22,7 @@ Resources:
         AttributeDataType: "String"
         DeveloperOnlyAttribute: false
         Mutable: false
-        Required: truea
+        Required: true
         StringAttributeConstraints:
           MinLength: "1"
           MaxLength: "2048"
@@ -199,8 +199,9 @@ Resources:
         StringAttributeConstraints:
           MinLength: "1"
           MaxLength: "256"
-      AutoVerifiedAttributes:
-      - "email"
+      # TODO:初回登録時、メール認証を有効化する
+      #AutoVerifiedAttributes:
+      #- "email"
       AliasAttributes:
       - "email"
       SmsVerificationMessage: " 検証コードは {####} です。"
@@ -283,7 +284,6 @@ Resources:
       - "ALLOW_CUSTOM_AUTH"
       - "ALLOW_REFRESH_TOKEN_AUTH"
       - "ALLOW_USER_SRP_AUTH"
-      GenerateSecret: true
       PreventUserExistenceErrors: "ENABLED"
       AllowedOAuthFlowsUserPoolClient: false
       IdTokenValidity: 60

@@ -1,0 +1,49 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Parameters:
+  RepositoryUrl:
+    Type: String
+Metadata:
+  Generator: "former2"
+Description: ""
+Resources:
+  AmplifyBranch:
+    Type: "AWS::Amplify::Branch"
+    Properties:
+      BranchName: "main"
+      Stage: "PRODUCTION"
+      # ↓これ必要?
+      AppId: "d3avaqnauw74s"
+      EnablePullRequestPreview: false
+      EnableAutoBuild: true
+      EnablePerformanceMode: false
+
+  AmplifyApp:
+    Type: "AWS::Amplify::App"
+    Properties:
+      Name: "slim-down"
+      Repository: !Ref RepositoryUrl
+      CustomRules:
+      -
+        Source: "/<*>"
+        # TODO:Taget変更する
+        Target: "/index.html"
+        Status: "404-200"
+      BuildSpec: |
+          version: 1
+          frontend:
+            phases:
+              # IMPORTANT - Please verify your build commands
+              build:
+                commands: []
+            artifacts:
+              # IMPORTANT - Please verify your build output directory
+              baseDirectory: /
+              files:
+                - '**/*'
+            cache:
+              paths: []
+
+      EnableBranchAutoDeletion: false
+      AccessToken: "REPLACEME"
+      OauthToken: "REPLACEME"
+      CustomHeaders: ""
