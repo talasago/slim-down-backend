@@ -2,6 +2,9 @@ service: slim-down
 
 frameworkVersion: ">=1.82.0 <3.0.0"
 
+plugins:
+  - serverless-dotenv-plugin
+
 provider:
   name: aws
   runtime: python3.8
@@ -28,6 +31,10 @@ functions:
           path: /
           method: post
           cors: true
+          authorizer:
+            type: COGNITO_USER_POOLS
+            authorizerId:
+              Ref: ApiGatewayAuthorizer
     environment:
       DYNAMODB_TABLE: ${self:provider.environment.DYNAMODB_TABLE}
 
@@ -49,3 +56,16 @@ resources:
           ReadCapacityUnits: 1
           WriteCapacityUnits: 1
         TableName: ${self:provider.environment.DYNAMODB_TABLE}
+
+    ApiGatewayAuthorizer:
+      Type: AWS::ApiGateway::Authorizer
+      Properties:
+        Name: ApiGatewayUserPoolAuthorizer
+        RestApiId:
+          Ref: ApiGatewayRestApi
+        IdentitySource: method.request.header.Authorization
+        Type: COGNITO_USER_POOLS
+        ProviderARNs:
+          #TODO:ホントはcognitoのarnを取りに行く
+          # - { Fn::GetAtt: [ApiGatewayWithAuthorizationUserPool, Arn] }
+          - ${env:cognitoUserPoolArn}
