@@ -11,7 +11,7 @@ provider:
   stage: dev
   region: ap-northeast-1
   environment:
-    DYNAMODB_TABLE: ${self:service}-${opt:stage, self:provider.stage}
+    DynamodbTableWeight: ${self:service}-weight-${opt:stage, self:provider.stage}
   iamRoleStatements:
     - Effect: Allow
       Action:
@@ -21,7 +21,7 @@ provider:
         - dynamodb:PutItem
         - dynamodb:UpdateItem
         - dynamodb:DeleteItem
-      Resource: "arn:aws:dynamodb:${opt:region, self:provider.region}:*:table/${self:provider.environment.DYNAMODB_TABLE}"
+      Resource: arn:aws:dynamodb:${opt:region, self:provider.region}:*:table/${self:provider.environment.DynamodbTableWeight}
 
 functions:
   create:
@@ -36,26 +36,42 @@ functions:
             authorizerId:
               Ref: ApiGatewayAuthorizer
     environment:
-      DYNAMODB_TABLE: ${self:provider.environment.DYNAMODB_TABLE}
+      DynamodbTableWeight: ${self:provider.environment.DynamodbTableWeight}
 
 resources:
   Resources:
     DynamoDbTable:
       Type: 'AWS::DynamoDB::Table'
+      # スタック削除時テーブルを残す
       DeletionPolicy: Retain
       Properties:
+        TableName: ${self:provider.environment.DynamodbTableWeight}
         AttributeDefinitions:
           -
-            AttributeName: id
+            AttributeName: cognitoUserSub
             AttributeType: S
+          -
+            AttributeName: nextTotalingFlg
+            AttributeType: B
         KeySchema:
           -
-            AttributeName: id
+            AttributeName: cognitoUserSub
             KeyType: HASH
         ProvisionedThroughput:
           ReadCapacityUnits: 1
           WriteCapacityUnits: 1
-        TableName: ${self:provider.environment.DYNAMODB_TABLE}
+        GlobalSecondaryIndexes:
+        -
+          IndexName: index-nextTotalingFlg
+          KeySchema:
+          -
+            AttributeName: nextTotalingFlg
+            KeyType: HASH
+          Projection:
+            ProjectionType: ALL
+          ProvisionedThroughput:
+            ReadCapacityUnits: 1
+            WriteCapacityUnits: 1
 
     ApiGatewayAuthorizer:
       Type: AWS::ApiGateway::Authorizer
