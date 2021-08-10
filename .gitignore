@@ -1,3 +1,6 @@
 .DS_Store
 .serverless
 node_modules/
+.dynamodb
+__pycache__
+venv

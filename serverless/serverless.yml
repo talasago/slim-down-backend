@@ -4,6 +4,21 @@ frameworkVersion: ">=1.82.0 <3.0.0"
 
 plugins:
   - serverless-dotenv-plugin
+  - serverless-dynamodb-local
+  - serverless-offline
+
+custom:
+  dynamodb:
+    stages:
+      - dev
+    start:
+      port: 8000
+      inMemory: true
+      heapInitial: 200m
+      heapMax: 1g
+      migrate: true
+      seed: true
+      convertEmptyValues: true
 
 provider:
   name: aws
@@ -52,7 +67,7 @@ resources:
             AttributeType: S
           -
             AttributeName: nextTotalingFlg
-            AttributeType: B
+            AttributeType: S
         KeySchema:
           -
             AttributeName: cognitoUserSub
