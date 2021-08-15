@@ -26,7 +26,7 @@ provider:
   stage: dev
   region: ap-northeast-1
   environment:
-    DynamodbTableWeight: ${self:service}-weight-${opt:stage, self:provider.stage}
+    WEIGHT_TABLE: ${self:service}-weight-${opt:stage, self:provider.stage}
   iamRoleStatements:
     - Effect: Allow
       Action:
@@ -36,7 +36,7 @@ provider:
         - dynamodb:PutItem
         - dynamodb:UpdateItem
         - dynamodb:DeleteItem
-      Resource: arn:aws:dynamodb:${opt:region, self:provider.region}:*:table/${self:provider.environment.DynamodbTableWeight}
+      Resource: arn:aws:dynamodb:${opt:region, self:provider.region}:*:table/${self:provider.environment.WEIGHT_TABLE}
 
 functions:
   create:
@@ -51,7 +51,20 @@ functions:
             authorizerId:
               Ref: ApiGatewayAuthorizer
     environment:
-      DynamodbTableWeight: ${self:provider.environment.DynamodbTableWeight}
+      WEIGHT_TABLE: ${self:provider.environment.WEIGHT_TABLE}
+  get:
+    handler: read.get
+    events:
+      - http:
+          path: /
+          method: get
+          cors: true
+          authorizer:
+            type: COGNITO_USER_POOLS
+            authorizerId:
+              Ref: ApiGatewayAuthorizer
+    environment:
+      WEIGHT_TABLE: ${self:provider.environment.WEIGHT_TABLE}
 
 resources:
   Resources:
@@ -60,7 +73,7 @@ resources:
       # スタック削除時テーブルを残す
       DeletionPolicy: Retain
       Properties:
-        TableName: ${self:provider.environment.DynamodbTableWeight}
+        TableName: ${self:provider.environment.WEIGHT_TABLE}
         AttributeDefinitions:
           -
             AttributeName: cognitoUserSub

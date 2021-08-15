@@ -1,7 +1,6 @@
 import json
 import logging
 import os
-import datetime
 
 import boto3
 
@@ -15,33 +14,27 @@ if os.environ['IS_OFFLINE']:
         aws_secret_access_key="DEFAULT_SECRET"
     )
 
-def create(event, context):
-    data = json.loads(event['body'])
-    if 'weight' not in data:
+def get(event, context):
+    query_param = event.get('queryStringParameters')  # クエリパラメータ取得
+
+    if query_param == None:
         logging.error("Validation Failed")
-        raise Exception("Weight not found")
-    if 'sub' not in data:
+        raise Exception("'queryStringParameters' not found")
+
+    sub = query_param.get('sub')
+    if sub == None:
         logging.error("Validation Failed")
         raise Exception("Sub not found")
 
     table = dynamodb.Table(os.environ['WEIGHT_TABLE'])
 
-    timestamp = str(datetime.datetime.now())
-
-    item = {
-        'cognitoUserSub': data["sub"],
-        'nextTotalingFlg': "T",
-        'weight': data["weight"],
-        'createdAt': timestamp,
-        'updatedAt': timestamp,
-    }
-
-    # TODO:subと同じものが存在したらエラーにしたい
-    table.put_item(Item=item)
+    item = table.get_item(
+        Key={'cognitoUserSub': sub}
+    )
 
     response = {
         "statusCode": 200,
-        "body": json.dumps(item)
+        "body": json.dumps(item['Item'])
     }
 
     return response
