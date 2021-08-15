@@ -65,6 +65,19 @@ functions:
               Ref: ApiGatewayAuthorizer
     environment:
       WEIGHT_TABLE: ${self:provider.environment.WEIGHT_TABLE}
+  update:
+    handler: update.update
+    events:
+      - http:
+          path: /
+          method: put
+          cors: true
+          authorizer:
+            type: COGNITO_USER_POOLS
+            authorizerId:
+              Ref: ApiGatewayAuthorizer
+    environment:
+      WEIGHT_TABLE: ${self:provider.environment.WEIGHT_TABLE}
 
 resources:
   Resources:
