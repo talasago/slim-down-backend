@@ -15,9 +15,6 @@ if os.environ['IS_OFFLINE']:
         aws_secret_access_key="DEFAULT_SECRET"
     )
 
-# 主キーを指定してアップデート
-  # 特定の項目(weight,flg)のみアップデート
-
 def update(event, context):
     data = json.loads(event['body'])
     if 'weight' not in data:
@@ -30,13 +27,6 @@ def update(event, context):
     table = dynamodb.Table(os.environ['WEIGHT_TABLE'])
 
     timestamp = str(datetime.datetime.now())
-
-    item = {
-        'cognitoUserSub': data["sub"],
-        'nextTotalingFlg': "T",
-        'weight': data["weight"],
-        'updatedAt': timestamp,
-    }
 
     res_update = table.update_item(
         Key={
@@ -59,6 +49,7 @@ def update(event, context):
     response_data = {
         'massage' : 'Weight updated'
     }
+
     response = {
         "statusCode": 200,
         "body": json.dumps(response_data)
