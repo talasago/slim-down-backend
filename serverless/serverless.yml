@@ -25,6 +25,7 @@ provider:
   runtime: python3.8
   stage: dev
   region: ap-northeast-1
+  endpointType: REGIONAL
   environment:
     WEIGHT_TABLE: ${self:service}-weight-${opt:stage, self:provider.stage}
   iamRoleStatements:
