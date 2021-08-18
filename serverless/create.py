@@ -2,12 +2,13 @@ import json
 import logging
 import os
 import datetime
+import jwt
 
 import boto3
 
 dynamodb = boto3.resource('dynamodb')
 
-if os.environ['IS_OFFLINE']:
+if os.getenv('IS_OFFLINE') is not None:
     dynamodb = boto3.resource('dynamodb',
         region_name="localhost",
         endpoint_url="http://localhost:8000",
@@ -16,11 +17,17 @@ if os.environ['IS_OFFLINE']:
     )
 
 def create(event, context):
+    print(event)
     data = json.loads(event['body'])
+
+    token = event['headers']['Authorization']
+    decoded_token = jwt.decode(token, algorithms=["RS256"], options={"verify_signature": False})
+    sub = decoded_token['sub']
+
     if 'weight' not in data:
         logging.error("Validation Failed")
         raise Exception("Weight not found")
-    if 'sub' not in data:
+    if sub == "" or sub is None:
         logging.error("Validation Failed")
         raise Exception("Sub not found")
 
@@ -29,9 +36,9 @@ def create(event, context):
     timestamp = str(datetime.datetime.now())
 
     item = {
-        'cognitoUserSub': data["sub"],
-        'nextTotalingFlg': "T",
+        'cognitoUserSub': sub,
         'weight': data["weight"],
+        'nextTotalingFlg': "T",
         'createdAt': timestamp,
         'updatedAt': timestamp,
     }
@@ -42,9 +49,11 @@ def create(event, context):
     response = {
         "statusCode": 200,
         'headers': {
+            "Content-type": "application/json",
             "Access-Control-Allow-Origin": "*",
             "Access-Control-Allow-Methods": "POST",
             "Access-Control-Allow-Headers": "Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token",
+            "Access-Control-Allow-Credentials": "true"
         },
         "body": json.dumps(item)
     }

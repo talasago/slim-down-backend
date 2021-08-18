@@ -6,6 +6,16 @@ plugins:
   - serverless-dotenv-plugin
   - serverless-dynamodb-local
   - serverless-offline
+  - serverless-python-requirements
+
+#TODO: venvとか不要なものをアップロードしない
+package:
+  exclude:
+    - __paycache__/**
+    - .dynamodb/**
+    - .serverless/**
+    - venv/**
+    - node_modules/**
 
 custom:
   dynamodb:
@@ -19,6 +29,8 @@ custom:
       migrate: true
       seed: true
       convertEmptyValues: true
+  pythonRequirements:
+    dockerizePip: true
 
 provider:
   name: aws
