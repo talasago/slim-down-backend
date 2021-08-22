@@ -1,0 +1,39 @@
+service: slim-down-auth
+
+frameworkVersion: ">=1.82.0 <3.0.0"
+
+plugins:
+  - serverless-dotenv-plugin
+
+package:
+  exclude:
+    - __paycache__/**
+    - .dynamodb/**
+    - .serverless/**
+    - venv/**
+    - node_modules/**
+
+custom:
+  dotenv:
+    path: ../.env
+  pythonRequirements:
+    dockerizePip: true
+
+provider:
+  name: aws
+  runtime: python3.9
+  stage: dev
+  region: ap-northeast-1
+  endpointType: REGIONAL
+  #iamRoleStatements:
+
+functions:
+  auth:
+    handler: auth.auth
+    events:
+      - http:
+          path: /auth
+          method: post
+          cors: true
+    environment:
+      CLIENT_ID: ${env:cognitoClientId}
