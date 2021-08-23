@@ -4,6 +4,7 @@ frameworkVersion: ">=1.82.0 <3.0.0"
 
 plugins:
   - serverless-dotenv-plugin
+  - serverless-python-requirements
 
 package:
   exclude:

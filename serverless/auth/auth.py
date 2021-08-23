@@ -5,7 +5,6 @@ import boto3
 
 client = boto3.client('cognito-idp')
 
-
 def auth(event, context):
     data = json.loads(event['body'])
 
@@ -22,7 +21,7 @@ def auth(event, context):
     try:
         res_auth = client.initiate_auth(
             AuthFlow = "USER_PASSWORD_AUTH",
-            ClientId = os.getenv["CLIENT_ID"],
+            ClientId = os.getenv("CLIENT_ID"),
             AuthParameters = {
                 'USERNAME': data['email'],
                 'PASSWORD': data['password']
@@ -41,7 +40,7 @@ def auth(event, context):
     id_token = res_auth["AuthenticationResult"]["IdToken"]
     sub = jwt.decode(id_token,
                      algorithms=["RS256"],
-                     options={"verify_signature": False})
+                     options={"verify_signature": False})["sub"]
 
     user_info = {
         'accessToken': access_token,
@@ -51,7 +50,7 @@ def auth(event, context):
 
     response = {
         "statusCode": 200,
-        "header": res_headers,
+        "headers": res_headers,
         "body": json.dumps(user_info)
     }
 
