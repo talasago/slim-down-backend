@@ -1,12 +1,13 @@
 import json
 import logging
 import os
+from decimal import Decimal
 
 import boto3
 
 dynamodb = boto3.resource('dynamodb')
 
-if os.environ['IS_OFFLINE']:
+if os.getenv('IS_OFFLINE') is not None:
     dynamodb = boto3.resource('dynamodb',
         region_name="localhost",
         endpoint_url="http://localhost:8000",
@@ -15,6 +16,9 @@ if os.environ['IS_OFFLINE']:
     )
 
 def get(event, context):
+    # デバッグ用
+    print(event)
+
     query_param = event.get('queryStringParameters')  # クエリパラメータ取得
 
     if query_param == None:
@@ -32,9 +36,27 @@ def get(event, context):
         Key={'cognitoUserSub': sub}
     )
 
+    # デバッグ用
+    print(item)
+
+    res_body = {
+        "weight": item['Item']['weight']
+    }
+
     response = {
         "statusCode": 200,
-        "body": json.dumps(item['Item'])
+        'headers': {
+            "Content-type": "application/json",
+            "Access-Control-Allow-Origin": "*",
+            "Access-Control-Allow-Methods": "POST",
+            "Access-Control-Allow-Headers": "Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token",
+            "Access-Control-Allow-Credentials": "true"
+        },
+        "body": json.dumps(res_body, default=decimal_default_proc)
     }
 
     return response
+
+def decimal_default_proc(obj):
+    if isinstance(obj, Decimal):
+        return float(obj)

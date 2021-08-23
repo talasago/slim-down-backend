@@ -2,12 +2,13 @@ import datetime
 import json
 import logging
 import os
+from decimal import Decimal
 
 import boto3
 
 dynamodb = boto3.resource('dynamodb')
 
-if os.environ['IS_OFFLINE']:
+if os.getenv('IS_OFFLINE') is not None:
     dynamodb = boto3.resource('dynamodb',
         region_name="localhost",
         endpoint_url="http://localhost:8000",
@@ -40,7 +41,7 @@ def update(event, context):
             '#time': 'updatedAt'
         },
         ExpressionAttributeValues={
-            ':weight': data["weight"],
+            ':weight': Decimal(data["weight"]),
             ':flg': 'T',
             ':time': timestamp
         }

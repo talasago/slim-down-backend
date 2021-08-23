@@ -3,6 +3,7 @@ import logging
 import os
 import datetime
 import jwt
+from decimal import Decimal
 
 import boto3
 
@@ -37,14 +38,21 @@ def create(event, context):
 
     item = {
         'cognitoUserSub': sub,
-        'weight': data["weight"],
+        'weight': Decimal(data["weight"]),
         'nextTotalingFlg': "T",
         'createdAt': timestamp,
         'updatedAt': timestamp,
     }
 
+    # デバッグ用
+    print(item)
+
     # TODO:subと同じものが存在したらエラーにしたい
     table.put_item(Item=item)
+
+    response_data = {
+        'massage' : 'Weight created'
+    }
 
     response = {
         "statusCode": 200,
@@ -55,7 +63,7 @@ def create(event, context):
             "Access-Control-Allow-Headers": "Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token",
             "Access-Control-Allow-Credentials": "true"
         },
-        "body": json.dumps(item)
+        "body": json.dumps(response_data)
     }
 
     return response
