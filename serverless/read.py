@@ -39,9 +39,10 @@ def get(event, context):
     # デバッグ用
     print(item)
 
-    res_body = {
-        "weight": item['Item']['weight']
-    }
+    res_body = {}
+
+    if item.get('Item') is not None:
+        res_body = {"weight": item['Item']['weight']}
 
     response = {
         "statusCode": 200,
