@@ -53,6 +53,13 @@ def update(event, context):
 
     response = {
         "statusCode": 200,
+        'headers': {
+            "Content-type": "application/json",
+            "Access-Control-Allow-Origin": "*",
+            "Access-Control-Allow-Methods": "POST",
+            "Access-Control-Allow-Headers": "Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token",
+            "Access-Control-Allow-Credentials": "true"
+        },
         "body": json.dumps(response_data)
     }
 
