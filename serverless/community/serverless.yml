@@ -1,0 +1,146 @@
+service: slim-down
+
+frameworkVersion: ">=1.82.0 <3.0.0"
+
+plugins:
+  - serverless-dotenv-plugin
+  - serverless-dynamodb-local
+  - serverless-offline
+  - serverless-python-requirements
+
+package:
+  patterns:
+    - '!./__paycache__/**'
+    - '!.dynamodb/**'
+    - '!.serverless/**'
+    - '!./.venv/**'
+
+custom:
+  dynamodb:
+    stages:
+      - dev
+    start:
+      port: 8000
+      inMemory: true
+      heapInitial: 200m
+      heapMax: 1g
+      migrate: true
+      seed: true
+      convertEmptyValues: true
+  pythonRequirements:
+    dockerizePip: true
+  dotenv:
+    path: ../.env
+
+provider:
+  name: aws
+  runtime: python3.8
+  stage: dev
+  region: ap-northeast-1
+  endpointType: REGIONAL
+  environment:
+    COMMUNITY_INFO: ${self:service}-community-info-${opt:stage, self:provider.stage}
+  iam:
+    role:
+      statements:
+        - Effect: Allow
+          Action:
+            - dynamodb:Query
+            - dynamodb:Scan
+            - dynamodb:GetItem
+            - dynamodb:PutItem
+            - dynamodb:UpdateItem
+            - dynamodb:DeleteItem
+          Resource:
+            Fn::Join:
+            - ':'
+            - - 'arn:aws:dynamodb'
+              - Ref: 'AWS::Region'
+              - Ref: 'AWS::AccountId'
+              - table/${self:provider.environment.COMMUNITY_INFO}
+
+functions:
+  create:
+    handler: create.create
+    events:
+      - http:
+          path: /community/info/
+          method: post
+          cors: true
+          authorizer:
+            type: COGNITO_USER_POOLS
+            authorizerId:
+              Ref: ApiGatewayAuthorizer
+    environment:
+      COMMUNITY_INFO: ${self:provider.environment.COMMUNITY_INFO}
+#  get:
+#    handler: read.get
+#    events:
+#      - http:
+#          path: /community/info/
+#          method: get
+#          cors: true
+#          authorizer:
+#            type: COGNITO_USER_POOLS
+#            authorizerId:
+#              Ref: ApiGatewayAuthorizer
+#    environment:
+#      COMMUNITY_INFO: ${self:provider.environment.COMMUNITY_INFO}
+#  get_list:
+#    handler: read.get_list
+#    events:
+#      - http:
+#          path: /community/info/
+#          method: get
+#          cors: true
+#          authorizer:
+#            type: COGNITO_USER_POOLS
+#            authorizerId:
+#              Ref: ApiGatewayAuthorizer
+#    environment:
+#      COMMUNITY_INFO: ${self:provider.environment.COMMUNITY_INFO}
+#  update:
+#    handler: update.update
+#    events:
+#      - http:
+#          path: /community/info/
+#          method: put
+#          cors: true
+#          authorizer:
+#            type: COGNITO_USER_POOLS
+#            authorizerId:
+#              Ref: ApiGatewayAuthorizer
+#    environment:
+#      COMMUNITY_INFO: ${self:provider.environment.COMMUNITY_INFO}
+
+resources:
+  Resources:
+    DynamoDbTable:
+      Type: 'AWS::DynamoDB::Table'
+      # スタック削除時テーブルを残す
+      DeletionPolicy: Retain
+      Properties:
+        TableName: ${self:provider.environment.COMMUNITY_INFO}
+        AttributeDefinitions:
+          -
+            AttributeName: communityId
+            AttributeType: S
+        KeySchema:
+          -
+            AttributeName: communityId
+            KeyType: HASH
+        ProvisionedThroughput:
+          ReadCapacityUnits: 1
+          WriteCapacityUnits: 1
+    ApiGatewayAuthorizer:
+      Type: AWS::ApiGateway::Authorizer
+      Properties:
+        Name: ApiGatewayUserPoolAuthorizer
+        RestApiId:
+          Ref: ApiGatewayRestApi
+        IdentitySource: method.request.header.Authorization
+        Type: COGNITO_USER_POOLS
+        ProviderARNs:
+          #TODO:ホントはcognitoのarnを取りに行く
+          # - { Fn::GetAtt: [ApiGatewayWithAuthorizationUserPool, Arn] }
+          - ${env:cognitoUserPoolArn}

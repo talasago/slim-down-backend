@@ -10,6 +10,7 @@ boto3 = "*"
 flake8 = "*"
 autopep8 = "*"
 pytest = "*"
+requests = "*"
 
 [requires]
 python_version = "3.9"
