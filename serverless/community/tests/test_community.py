@@ -48,3 +48,22 @@ def test_get_list_200():
     assert res['statusCode'] == 200
     # ホントはうまいことdictを比較したい
     assert res_body['items'][0]['communityId'] == expexted_body['communityId']
+
+
+def test_get_200():
+    expexted_body = {
+        'communityId': 'test_commu2',
+        'communityName': 'テストコミュニティ名',
+        'communityOwnerSub': 'community_owner_sub',
+        'content': 'これは\nコミュニティ情報作成のテストです'
+    }
+    event = {
+        'queryStringParameters': {
+            'communityId': 'test_commu2'
+        }
+    }
+    res = read.get(event, '')
+    res_body = json.loads(res['body'])
+
+    assert res['statusCode'] == 200
+    assert res_body['item']['communityId'] == expexted_body['communityId']

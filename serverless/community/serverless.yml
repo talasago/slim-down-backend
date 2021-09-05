@@ -73,19 +73,19 @@ functions:
               Ref: ApiGatewayAuthorizer
     environment:
       COMMUNITY_INFO: ${self:provider.environment.COMMUNITY_INFO}
-#  get:
-#    handler: read.get
-#    events:
-#      - http:
-#          path: /community/info/
-#          method: get
-#          cors: true
-#          authorizer:
-#            type: COGNITO_USER_POOLS
-#            authorizerId:
-#              Ref: ApiGatewayAuthorizer
-#    environment:
-#      COMMUNITY_INFO: ${self:provider.environment.COMMUNITY_INFO}
+  get:
+    handler: read.get
+    events:
+      - http:
+          path: /community/info/
+          method: get
+          cors: true
+          authorizer:
+            type: COGNITO_USER_POOLS
+            authorizerId:
+              Ref: ApiGatewayAuthorizer
+    environment:
+      COMMUNITY_INFO: ${self:provider.environment.COMMUNITY_INFO}
   get_list:
     handler: read.get_list
     events:
