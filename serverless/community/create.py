@@ -13,14 +13,16 @@ if os.getenv('IS_OFFLINE') is not None or \
                               aws_secret_access_key="DEFAULT_SECRET"
                               )
 
+
 def create(event, context):
+    # for debug
     print(event)
 
     data = json.loads(event['body'])
-    community_id: str    = data.get('community_id')    # noqa: E221
-    community_name: str  = data.get('community_name')  # noqa: E221
+    community_id: str        = data.get('community_id')    # noqa: E221
+    community_name: str      = data.get('community_name')  # noqa: E221
     community_owner_sub: str = data.get('community_owner_sub')
-    content: str         = data.get('content')         # noqa: E221
+    content: str             = data.get('content')         # noqa: E221
 
     if community_id == "":
         response_data = {
