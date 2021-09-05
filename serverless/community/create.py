@@ -19,9 +19,9 @@ def create(event, context):
     print(event)
 
     data = json.loads(event['body'])
-    community_id: str        = data.get('community_id')    # noqa: E221
-    community_name: str      = data.get('community_name')  # noqa: E221
-    community_owner_sub: str = data.get('community_owner_sub')
+    community_id: str        = data.get('communityId')    # noqa: E221
+    community_name: str      = data.get('communityName')  # noqa: E221
+    community_owner_sub: str = data.get('communityOwnerSub')
     content: str             = data.get('content')         # noqa: E221
 
     if community_id == "":
@@ -30,7 +30,7 @@ def create(event, context):
         }
 
         response = {
-            "statusCode": 500,
+            "statusCode": 400,
             'headers': {
                 "Content-type": "application/json",
                 "Access-Control-Allow-Origin": "*",
@@ -49,7 +49,7 @@ def create(event, context):
         }
 
         response = {
-            "statusCode": 500,
+            "statusCode": 400,
             'headers': {
                 "Content-type": "application/json",
                 "Access-Control-Allow-Origin": "*",
