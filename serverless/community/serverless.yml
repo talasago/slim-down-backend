@@ -99,19 +99,19 @@ functions:
               Ref: ApiGatewayAuthorizer
     environment:
       COMMUNITY_INFO: ${self:provider.environment.COMMUNITY_INFO}
-#  update:
-#    handler: update.update
-#    events:
-#      - http:
-#          path: /community/info/
-#          method: put
-#          cors: true
-#          authorizer:
-#            type: COGNITO_USER_POOLS
-#            authorizerId:
-#              Ref: ApiGatewayAuthorizer
-#    environment:
-#      COMMUNITY_INFO: ${self:provider.environment.COMMUNITY_INFO}
+  update:
+    handler: update.update
+    events:
+      - http:
+          path: /community/info/
+          method: put
+          cors: true
+          authorizer:
+            type: COGNITO_USER_POOLS
+            authorizerId:
+              Ref: ApiGatewayAuthorizer
+    environment:
+      COMMUNITY_INFO: ${self:provider.environment.COMMUNITY_INFO}
 
 resources:
   Resources:

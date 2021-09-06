@@ -8,19 +8,7 @@ sys.path.append(os.path.join(currrent_path, "../"))
 os.environ['COMMUNITY_INFO'] = 'slim-down-community-info-dev'
 import create  # noqa: E402
 import read    # noqa: E402
-
-#def test_create_200_api():
-#    payload = {
-#        'community_id': 'test_commu',
-#        'community_name': 'テストコミュニティ名',
-#        'community_owner_sub': 'community_owner_sub',
-#        'content': 'これは\nコミュニティ情報作成のテストです'
-#    }
-#    res = requests.post('http://localhost:3000/dev/community/info',
-#                        data=json.dumps(payload))
-#
-#    # res = create.create(event, '')
-#    assert res['statusCode'] == 200
+import update  # noqa: E402
 
 
 def test_create_200():
@@ -67,3 +55,18 @@ def test_get_200():
 
     assert res['statusCode'] == 200
     assert res_body['item']['communityId'] == expexted_body['communityId']
+
+
+def test_update_200():
+    body = {
+        'communityId': 'test_commu2',
+        'communityName': 'テストコミュニティXXX',
+        'content': 'This is \n community-info'
+    }
+    event = {'body': json.dumps(body)}
+
+    res = update.update(event, '')
+    res_body = json.loads(res['body'])
+
+    assert res['statusCode'] == 200
+    assert res_body['communityName'] == body['communityName']
