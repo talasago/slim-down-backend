@@ -1,5 +1,4 @@
 import json
-# import requests
 import os
 import sys
 
@@ -9,6 +8,7 @@ os.environ['COMMUNITY_INFO'] = 'slim-down-community-info-dev'
 import create  # noqa: E402
 import read    # noqa: E402
 import update  # noqa: E402
+import delete  # noqa: E402
 
 
 def test_create_200():
@@ -70,3 +70,14 @@ def test_update_200():
 
     assert res['statusCode'] == 200
     assert res_body['communityName'] == body['communityName']
+
+
+def test_delete_200():
+    body = {
+        'communityId': 'test_commu2',
+    }
+    event = {'body': json.dumps(body)}
+
+    res = delete.delete(event, '')
+
+    assert res['statusCode'] == 200

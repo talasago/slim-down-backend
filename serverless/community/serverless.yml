@@ -112,6 +112,19 @@ functions:
               Ref: ApiGatewayAuthorizer
     environment:
       COMMUNITY_INFO: ${self:provider.environment.COMMUNITY_INFO}
+  delete:
+    handler: delete.delete
+    events:
+      - http:
+          path: /community/info/
+          method: delete
+          cors: true
+          authorizer:
+            type: COGNITO_USER_POOLS
+            authorizerId:
+              Ref: ApiGatewayAuthorizer
+    environment:
+      COMMUNITY_INFO: ${self:provider.environment.COMMUNITY_INFO}
 
 resources:
   Resources:
