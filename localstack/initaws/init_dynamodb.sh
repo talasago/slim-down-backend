@@ -23,3 +23,8 @@ awslocal dynamodb create-table --table-name 'slim-down-user-weight-local' \
 --provisioned-throughput '{"ReadCapacityUnits": 1,"WriteCapacityUnits": 1}'
 
 # テストデータを読み込み
+awslocal dynamodb put-item --table-name 'slim-down-community-info-local' \
+    --cli-input-json file:///docker-entrypoint-initaws.d/dynamodb/community-info.json
+
+awslocal dynamodb put-item --table-name 'slim-down-community-info-local' \
+    --cli-input-json file:///docker-entrypoint-initaws.d/dynamodb/community-info2.json
