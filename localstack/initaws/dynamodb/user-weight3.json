@@ -1,0 +1,11 @@
+{
+  "TableName": "slim-down-user-weight-local",
+  "Item": {
+    "cognitoUserSub": {
+      "S": "ccc"
+    },
+    "weight": {
+      "N": "45.66"
+    }
+  }
+}
