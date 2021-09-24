@@ -1,0 +1,20 @@
+{
+  "TableName": "slim-down-community-info-local",
+  "Item": {
+    "communityId": {
+      "S": "test-commu-info"
+    },
+    "totalingDate": {
+      "S": "###TODAY###"
+    },
+    "weight": {
+      "N": "123.444"
+    },
+    "next_totaling_flg": {
+      "S": "T"
+    },
+    "belong_sub_list": {
+      "L": [{"S": "sss"}, {"S": "ddd"}]
+    }
+  }
+}
