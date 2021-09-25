@@ -10,10 +10,10 @@
     "weight": {
       "N": "123.444"
     },
-    "next_totaling_flg": {
+    "nextTotalingFlg": {
       "S": "T"
     },
-    "belong_sub_list": {
+    "belongSubList": {
       "L": [{"S": "aaa"}, {"S": "bbb"}, {"S": "ccc"}, {"S": "ddd"}]
     }
   }

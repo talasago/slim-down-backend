@@ -10,7 +10,7 @@
     "weight": {
       "N": "333.4"
     },
-    "belong_sub_list": {
+    "belongSubList": {
       "L": [{"S": "eee"}]
     }
   }
