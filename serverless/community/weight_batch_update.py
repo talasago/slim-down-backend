@@ -109,5 +109,4 @@ def weightBatchUpdate(event, context):
         }
     )
 
-    # cognitoに所属しているcommunityID登録が必要だ
     print('wait_batch_update finished.')
