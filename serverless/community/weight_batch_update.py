@@ -62,8 +62,12 @@ def weightBatchUpdate(event, context):
         today_weight = Decimal(0)
 
         user_weight_keys = []
-        for sub in row.belongSubList:
-            user_weight_keys.append({'cognitoUserSub': sub})
+        belong_sub_list = []
+        # nanの場合は処理しない
+        if isinstance(row.belongSubList, list):
+            for sub in row.belongSubList:
+                user_weight_keys.append({'cognitoUserSub': sub})
+                belong_sub_list.append(sub)
 
         # 集計対象
         if hasattr(row, 'nextTotalingFlg') and \
@@ -89,6 +93,7 @@ def weightBatchUpdate(event, context):
             )
             if item.get('Item') is not None:
                 today_weight = item['Item']['weight']
+                belong_sub_list = item['Item']['belongSubList']
 
         put_items.append({
             'PutRequest': {
@@ -96,7 +101,7 @@ def weightBatchUpdate(event, context):
                     'communityId': row.communityId,
                     'totalingDate': today,
                     'weight': Decimal(today_weight),
-                    'belongSubList': row.belongSubList,
+                    'belongSubList': belong_sub_list,
                     'createdAt': timestamp,
                     'updatedAt': timestamp,
                 }

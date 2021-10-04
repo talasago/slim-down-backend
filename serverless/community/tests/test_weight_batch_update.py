@@ -46,7 +46,7 @@ def init_commu_weight():
                     'communityId': 'test-commu-info2',
                     'totalingDate': yesterday,
                     'weight': '333.4',
-                    'belongSubList':  ["eee"]
+                    'belongSubList': ["eee"]
                 }
             }
         }
