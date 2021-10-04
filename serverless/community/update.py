@@ -7,8 +7,8 @@ dynamodb = boto3.resource('dynamodb')
 if os.getenv('IS_OFFLINE') is not None or \
    os.getenv('AWS_LAMBDA_FUNCTION_VERSION') is None:
     dynamodb = boto3.resource('dynamodb',
-                              region_name="localhost",
-                              endpoint_url="http://localhost:8000",
+                              region_name="ap-northeast-1",  # localstack用
+                              endpoint_url="http://localhost:4566",
                               aws_access_key_id="DEFAULT_ACCESS_KEY",
                               aws_secret_access_key="DEFAULT_SECRET"
                               )
