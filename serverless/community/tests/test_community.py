@@ -1,4 +1,3 @@
-from unittest import TestCase
 from dotenv import load_dotenv
 import json
 import os

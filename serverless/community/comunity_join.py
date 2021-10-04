@@ -15,6 +15,7 @@ if os.getenv('IS_OFFLINE') is not None or \
     session = Session(profile_name=os.getenv('AWS_PROFILE'))
     client_cip = session.client('cognito-idp')
 
+
 def community_join(event, context):
     # for debug
     print(event)
@@ -22,7 +23,7 @@ def community_join(event, context):
     data = json.loads(event['body'])
     community_id: str = data.get('communityId')
     sub: str = data.get('sub')
-    access_token: str = event.get('headers').get('Authorization').get('AccessToken')
+    access_token: str = event['headers']['Authorization']['AccessToken']
 
     if community_id is None or\
        sub is None or \
