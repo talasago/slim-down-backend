@@ -28,6 +28,7 @@ class CommunityWeight:
         self.next_totaling_flg: str = next_totaling_flg
         self.belong_sub_list: list = belong_sub_list
 
+    # TODO:共通のところをの抜き出す
     def upsert_commu_weight(self, sub: str) -> dict:
         timestamp = str(datetime.datetime.now())
 
@@ -45,6 +46,7 @@ class CommunityWeight:
         else:
             sub_list: list = res_get['Item']['belongSubList']
             sub_list.append(sub)
+            # 重複要素の削除
             sub_list = list(set(sub_list))
 
         res_update = table.update_item(
@@ -70,3 +72,43 @@ class CommunityWeight:
         print(res_update)
 
         return {'massage': "コミュニティに参加しました"}
+
+    def belong_user_leave(self, sub: str) -> dict:
+        timestamp = str(datetime.datetime.now())
+
+        # sublistを取得してマージする
+        res_get = table.get_item(
+            Key={
+                'communityId': self.community_id,
+                'totalingDate': self.totaling_date
+            },
+            ProjectionExpression="belongSubList"
+        )
+
+        sub_list: list = res_get['Item']['belongSubList']
+        # subの削除
+        sub_list.remove(sub)
+
+        res_update = table.update_item(
+            Key={
+                'communityId': self.community_id,
+                'totalingDate': self.totaling_date
+            },
+            ReturnValues='UPDATED_NEW',
+            UpdateExpression='SET #flg = :flg, \
+                                  #sub_list = :sub_list, \
+                                  #time = :time',
+            ExpressionAttributeNames={
+                '#flg': 'nextTotalingFlg',
+                '#sub_list': 'belongSubList',
+                '#time': 'updatedAt'
+            },
+            ExpressionAttributeValues={
+                ':flg': 'T',
+                ':sub_list': sub_list,
+                ':time': timestamp,
+            }
+        )
+        print(res_update)
+
+        return {'massage': "コミュニティから退会しました"}

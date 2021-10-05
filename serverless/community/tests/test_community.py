@@ -4,6 +4,7 @@ import os
 import sys
 import boto3
 import datetime
+import pytest
 from boto3.session import Session
 import configparser
 
@@ -17,7 +18,8 @@ import create  # noqa: E402
 import read    # noqa: E402
 import update  # noqa: E402
 import delete  # noqa: E402
-import comunity_join  # noqa: E402
+import community_join  # noqa: E402
+import community_leave  # noqa: E402
 load_dotenv()
 
 session = Session(profile_name=os.getenv('AWS_PROFILE'))
@@ -34,6 +36,19 @@ community_weight = dynamodb.Table(COMMUNITY_WEIGHT)
 config_ini = configparser.ConfigParser()
 path_ini = os.path.join(currrent_path, "tests-data/test_community.ini")
 config_ini.read(path_ini, encoding='utf-8')
+
+
+@pytest.fixture(scope='session')
+def auth():
+    res_auth = client_cip.initiate_auth(
+        AuthFlow="USER_PASSWORD_AUTH",
+        ClientId=os.getenv("cognitoClientId"),
+        AuthParameters={
+            'USERNAME': config_ini['auth']['USERNAME'],
+            'PASSWORD': config_ini['auth']['PASSWORD']
+        }
+    )
+    return res_auth
 
 
 def test_create_200():
@@ -108,17 +123,8 @@ def test_delete_200():
     assert res['statusCode'] == 200
 
 
-def test_community_join_200():
-    res_auth = client_cip.initiate_auth(
-        AuthFlow="USER_PASSWORD_AUTH",
-        ClientId=os.getenv("cognitoClientId"),
-        AuthParameters={
-            'USERNAME': config_ini['auth']['USERNAME'],
-            'PASSWORD': config_ini['auth']['PASSWORD']
-        }
-    )
-
-    access_token = res_auth['AuthenticationResult']["AccessToken"]
+def test_community_join_200(auth):
+    access_token = auth['AuthenticationResult']["AccessToken"]
 
     body = {
         'communityId': 'test_commu2',
@@ -132,7 +138,7 @@ def test_community_join_200():
         'body': json.dumps(body)
     }
 
-    res = comunity_join.community_join(event, '')
+    res = community_join.community_join(event, '')
     assert res['statusCode'] == 200
 
     today = datetime.datetime.now()
@@ -159,3 +165,45 @@ def test_community_join_200():
             exsist_flg = True
             assert attr['Value'] == body['communityId']
     assert exsist_flg
+
+
+def test_community_leave_200(auth):
+
+    access_token = auth['AuthenticationResult']["AccessToken"]
+
+    body = {
+        'communityId': 'test_commu2',
+        'sub': '76e6f480-5f0a-4863-97f8-aff844774a5c'
+    }
+
+    event = {
+        'headers': {'Authorization': {
+            'AccessToken': access_token
+        }},
+        'body': json.dumps(body)
+    }
+
+    res = community_leave.community_leave(event, '')
+    assert res['statusCode'] == 200
+
+    today = datetime.datetime.now()
+    totaling_date = today.strftime('%Y%m%d')
+    item: dict = community_weight.get_item(
+        Key={
+            'communityId': body['communityId'],
+            'totalingDate': totaling_date
+        },
+        ProjectionExpression="communityId,   \
+                              totalingDate, \
+                              nextTotalingFlg, \
+                              belongSubList"
+    )
+    actual_sub_list = item['Item']['belongSubList']
+    assert body['sub'] not in actual_sub_list
+
+    user = client_cip.get_user(
+        AccessToken=access_token
+    )
+    attrs = user['UserAttributes']
+    for attr in attrs:
+        assert not attr['Name'] == 'custom:community_id'
