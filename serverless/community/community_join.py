@@ -1,5 +1,5 @@
 import json
-from models.community_weight import CommunityWeight
+from models.community_weight import CommunityWeight, CommunityWeightRepository
 import datetime
 import os
 from dotenv import load_dotenv
@@ -56,10 +56,13 @@ def community_join(event, context):
 
     today = datetime.datetime.now()
     totaling_date = today.strftime('%Y%m%d')
-    cw = CommunityWeight(community_id, totaling_date)
 
     try:
-        response_data = cw.upsert_commu_weight(sub)
+        cw = CommunityWeightRepository.find_by(community_id, totaling_date)
+        cw.sub_add(sub)
+        cw.next_totaling_flg = 'T'
+        cw.update_item()
+        response_data = {'massage': "コミュニティに参加しました"}
     except Exception as e:
         response = {
             "statusCode": 500,

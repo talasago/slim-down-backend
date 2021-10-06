@@ -1,5 +1,5 @@
 import json
-from models.community_weight import CommunityWeight
+from models.community_weight import CommunityWeight, CommunityWeightRepository
 import datetime
 import os
 from dotenv import load_dotenv
@@ -53,10 +53,13 @@ def community_leave(event, context):
 
     today = datetime.datetime.now()
     totaling_date = today.strftime('%Y%m%d')
-    cw = CommunityWeight(community_id, totaling_date)
 
     try:
-        response_data = cw.belong_user_leave(sub)
+        cw = CommunityWeightRepository.find_by(community_id, totaling_date)
+        cw.sub_remove(sub)
+        cw.next_totaling_flg = 'T'
+        cw.update_item()
+        response_data = {'massage': "コミュニティから退会しました"}
     except Exception as e:
         response = {
             "statusCode": 500,
