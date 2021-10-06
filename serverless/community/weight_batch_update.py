@@ -31,7 +31,7 @@ def weightBatchUpdate(event, context):
 
     # レスポンスに LastEvaluatedKey が含まれなくなるまでループ処理を実行
     while 'LastEvaluatedKey' in res_scan:
-        res_scan = dynamodb.scan(
+        res_scan = table_commu_info.scan(
             ExclusiveStartKey=res_scan['LastEvaluatedKey'],
             ProjectionExpression='communityId')
         commu_info_items.extend(res_scan['Items'])
