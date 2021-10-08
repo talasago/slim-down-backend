@@ -40,6 +40,8 @@ provider:
   endpointType: REGIONAL
   environment:
     COMMUNITY_INFO: ${self:service}-community-info-${opt:stage, self:provider.stage}
+    COMMUNITY_WEIGHT: ${self:service}-community-weight-${opt:stage, self:provider.stage}
+    USER_WEIGHT: ${self:service}-user-weight-${opt:stage, self:provider.stage}
   iam:
     role:
       statements:
@@ -125,6 +127,41 @@ functions:
               Ref: ApiGatewayAuthorizer
     environment:
       COMMUNITY_INFO: ${self:provider.environment.COMMUNITY_INFO}
+  communityJoin:
+    handler: community_join.community_join
+    events:
+      - http:
+          path: /community/
+          method: put
+          cors: true
+          authorizer:
+            type: COGNITO_USER_POOLS
+            authorizerId:
+              Ref: ApiGatewayAuthorizer
+    environment:
+      COMMUNITY_WEIGHT: ${self:provider.environment.COMMUNITY_WEIGHT}
+  communityLeave:
+    handler: community_leave.community_leave
+    events:
+      - http:
+          path: /community/
+          method: delete
+          cors: true
+          authorizer:
+            type: COGNITO_USER_POOLS
+            authorizerId:
+              Ref: ApiGatewayAuthorizer
+    environment:
+      COMMUNITY_WEIGHT: ${self:provider.environment.COMMUNITY_WEIGHT}
+  weightBatchUpdate:
+    handler: weight_batch_update.weight_batch_update
+    events:
+      # JST0時に起動
+      - schedule: cron(0 15 * * ? *)
+    environment:
+      COMMUNITY_INFO: ${self:provider.environment.COMMUNITY_INFO}
+      COMMUNITY_WEIGHT: ${self:provider.environment.COMMUNITY_WEIGHT}
+      USER_WEIGHT: ${self:provider.environment.USER_WEIGHT}
 
 resources:
   Resources:
