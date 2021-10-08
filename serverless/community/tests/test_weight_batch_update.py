@@ -96,7 +96,7 @@ def init_commu_weight():
 
 
 def test_weight_batch_update(init_commu_weight):
-    weight_batch_update.weightBatchUpdate('', '')
+    weight_batch_update.weight_batch_update('', '')
 
     item = community_weight.get_item(
         Key={

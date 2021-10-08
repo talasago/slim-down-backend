@@ -20,7 +20,7 @@ table_commu_info = dynamodb.Table(os.environ['COMMUNITY_INFO'])
 table_user_weight = dynamodb.Table(os.environ['USER_WEIGHT'])
 
 
-def weightBatchUpdate(event, context):
+def weight_batch_update(event, context):
     res_scan = table_commu_info.scan(ProjectionExpression='communityId')
     print(res_scan)
     commu_info_items = res_scan['Items']
