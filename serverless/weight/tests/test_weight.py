@@ -75,7 +75,7 @@ def test_create_200(auth, sub_in_token):
 def test_update_200(sub_in_token):
     body = {
         'sub': sub_in_token,
-        'weight': 123.45,
+        'weight': '123.45',
     }
     event = {
         'body': json.dumps(body),

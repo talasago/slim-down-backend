@@ -8,10 +8,10 @@ import boto3
 
 dynamodb = boto3.resource('dynamodb')
 
-if os.getenv('IS_OFFLINE') is not None:
+if os.getenv('AWS_LAMBDA_FUNCTION_VERSION') is None:
     dynamodb = boto3.resource('dynamodb',
-        region_name="localhost",
-        endpoint_url="http://localhost:8000",
+        region_name="ap-northeast-1",  # localstack用
+        endpoint_url="http://localhost:4566",
         aws_access_key_id="DEFAULT_ACCESS_KEY",
         aws_secret_access_key="DEFAULT_SECRET"
     )
@@ -25,7 +25,7 @@ def update(event, context):
         logging.error("Validation Failed")
         raise Exception("Sub not found")
 
-    table = dynamodb.Table(os.environ['WEIGHT_TABLE'])
+    table = dynamodb.Table(os.environ['USER_WEIGHT_TABLE'])
 
     timestamp = str(datetime.datetime.now())
 
@@ -34,15 +34,13 @@ def update(event, context):
             'cognitoUserSub': data["sub"]
         },
         ReturnValues='UPDATED_NEW',
-        UpdateExpression= 'SET #w = :weight, #flg = :flg, #time = :time',
+        UpdateExpression= 'SET #w = :weight, #time = :time',
         ExpressionAttributeNames={
             '#w': 'weight',
-            '#flg': 'nextTotalingFlg',
             '#time': 'updatedAt'
         },
         ExpressionAttributeValues={
             ':weight': Decimal(data["weight"]),
-            ':flg': 'T',
             ':time': timestamp
         }
     )
