@@ -1,20 +1,17 @@
-from dotenv import load_dotenv
 import json
 import os
 import sys
 import boto3
-import datetime
+from dotenv import load_dotenv
 import pytest
 from boto3.session import Session
 import configparser
 import jwt
+# .env読み込み
+load_dotenv()
 
 currrent_path = os.path.dirname(os.path.realpath(__file__))
 sys.path.append(os.path.join(currrent_path, "../"))
-
-# .envの環境変数読み込み
-load_dotenv()
-
 # handlerのための環境変数設定
 USER_WEIGHT = 'slim-down-user-weight-local'
 os.environ['USER_WEIGHT_TABLE'] = USER_WEIGHT
@@ -22,7 +19,12 @@ import create
 import update
 import read
 
-session = Session(profile_name=os.getenv('AWS_PROFILE'))
+# テストデータ用パラメタ読み込み
+config_ini = configparser.ConfigParser()
+path_ini = os.path.join(currrent_path, "tests_data/test_weight_param.ini")
+config_ini.read(path_ini, encoding='utf-8')
+
+session = Session(profile_name=config_ini['AWS']['AWS_PROFILE'])
 client_cip = session.client('cognito-idp')
 dynamodb = boto3.resource(
     'dynamodb',
@@ -33,9 +35,6 @@ dynamodb = boto3.resource(
 )
 community_weight = dynamodb.Table(USER_WEIGHT)
 
-config_ini = configparser.ConfigParser()
-path_ini = os.path.join(currrent_path, "tests_data/test_weight_param.ini")
-config_ini.read(path_ini, encoding='utf-8')
 
 @pytest.fixture(scope='session')
 def auth():
