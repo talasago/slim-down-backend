@@ -8,9 +8,13 @@ import pytest
 from boto3.session import Session
 import configparser
 
+# .env読み込み
+load_dotenv()
+
+
 currrent_path = os.path.dirname(os.path.realpath(__file__))
 sys.path.append(os.path.join(currrent_path, "../"))
-
+# handlerのための環境変数設定
 COMMUNITY_WEIGHT = 'slim-down-community-weight-local'
 os.environ['COMMUNITY_INFO'] = 'slim-down-community-info-local'
 os.environ['COMMUNITY_WEIGHT'] = COMMUNITY_WEIGHT
@@ -20,9 +24,13 @@ import update  # noqa: E402
 import delete  # noqa: E402
 import community_join  # noqa: E402
 import community_leave  # noqa: E402
-load_dotenv()
 
-session = Session(profile_name=os.getenv('AWS_PROFILE'))
+# テスト用パラメタ取得
+config_ini = configparser.ConfigParser()
+path_ini = os.path.join(currrent_path, "tests-data/test_community.ini")
+config_ini.read(path_ini, encoding='utf-8')
+
+session = Session(profile_name=config_ini['AWS']['AWS_PROFILE'])
 client_cip = session.client('cognito-idp')
 dynamodb = boto3.resource(
     'dynamodb',
@@ -32,10 +40,6 @@ dynamodb = boto3.resource(
     aws_secret_access_key="DEFAULT_SECRET"
 )
 community_weight = dynamodb.Table(COMMUNITY_WEIGHT)
-
-config_ini = configparser.ConfigParser()
-path_ini = os.path.join(currrent_path, "tests-data/test_community.ini")
-config_ini.read(path_ini, encoding='utf-8')
 
 
 @pytest.fixture(scope='session')
@@ -127,7 +131,7 @@ def test_community_join_200(auth):
     access_token = auth['AuthenticationResult']["AccessToken"]
 
     body = {
-        'communityId': 'test_commu2',
+        'communityId': 'test-commu2',
         'sub': '76e6f480-5f0a-4863-97f8-aff844774a5c'
     }
 
@@ -172,7 +176,7 @@ def test_community_leave_200(auth):
     access_token = auth['AuthenticationResult']["AccessToken"]
 
     body = {
-        'communityId': 'test_commu2',
+        'communityId': 'test-commu2',
         'sub': '76e6f480-5f0a-4863-97f8-aff844774a5c'
     }
 

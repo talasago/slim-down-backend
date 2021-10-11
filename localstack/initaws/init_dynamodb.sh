@@ -32,16 +32,3 @@ today="$(date +%Y%m%d)"
 input_param=$(sed "s/###TODAY###/${today}/g" /docker-entrypoint-initaws.d/dynamodb/community-weight.json)
 awslocal dynamodb put-item --table-name 'slim-down-community-weight-local' \
     --cli-input-json "${input_param}" || true
-yesterday="$(date +%Y%m%d)"
-input_param=$(sed "s/###YESTERDAY###/${yesterday}/g" /docker-entrypoint-initaws.d/dynamodb/community-weight2.json)
-awslocal dynamodb put-item --table-name 'slim-down-community-weight-local' \
-    --cli-input-json "${input_param}" || true
-
-awslocal dynamodb put-item --table-name 'slim-down-user-weight-local' \
-    --cli-input-json file:///docker-entrypoint-initaws.d/dynamodb/user-weight.json || true
-awslocal dynamodb put-item --table-name 'slim-down-user-weight-local' \
-    --cli-input-json file:///docker-entrypoint-initaws.d/dynamodb/user-weight2.json || true
-awslocal dynamodb put-item --table-name 'slim-down-user-weight-local' \
-    --cli-input-json file:///docker-entrypoint-initaws.d/dynamodb/user-weight3.json || true
-awslocal dynamodb put-item --table-name 'slim-down-user-weight-local' \
-    --cli-input-json file:///docker-entrypoint-initaws.d/dynamodb/user-weight4.json || true

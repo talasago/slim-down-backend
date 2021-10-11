@@ -2,11 +2,9 @@ import json
 from models.community_weight import CommunityWeight, CommunityWeightRepository
 import datetime
 import os
-from dotenv import load_dotenv
 import boto3
 from boto3.session import Session
 
-load_dotenv()
 
 client_cip = boto3.client('cognito-idp')
 if os.getenv('IS_OFFLINE') is not None or \

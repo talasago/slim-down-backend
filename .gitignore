@@ -8,3 +8,4 @@ venv
 **/.vscode
 localstack/localstack/
 **/tests-data/
+**/tests_data/*ini

@@ -1,54 +1,56 @@
-import datetime
 import json
 import logging
 import os
+import datetime
+import jwt
 from decimal import Decimal
 
 import boto3
 
 dynamodb = boto3.resource('dynamodb')
 
-if os.getenv('IS_OFFLINE') is not None:
+if os.getenv('AWS_LAMBDA_FUNCTION_VERSION') is None:
     dynamodb = boto3.resource('dynamodb',
-        region_name="localhost",
-        endpoint_url="http://localhost:8000",
+        region_name="ap-northeast-1",  # localstack用
+        endpoint_url="http://localhost:4566",
         aws_access_key_id="DEFAULT_ACCESS_KEY",
         aws_secret_access_key="DEFAULT_SECRET"
     )
 
-def update(event, context):
+def create(event, context):
+    print(event)
     data = json.loads(event['body'])
+
+    token = event['headers']['Authorization']
+    decoded_token = jwt.decode(token, algorithms=["RS256"], options={"verify_signature": False})
+    sub = decoded_token['sub']
+
     if 'weight' not in data:
         logging.error("Validation Failed")
         raise Exception("Weight not found")
-    if 'sub' not in data:
+    if sub == "" or sub is None:
         logging.error("Validation Failed")
         raise Exception("Sub not found")
 
-    table = dynamodb.Table(os.environ['WEIGHT_TABLE'])
+    table = dynamodb.Table(os.environ['USER_WEIGHT_TABLE'])
 
     timestamp = str(datetime.datetime.now())
 
-    res_update = table.update_item(
-        Key={
-            'cognitoUserSub': data["sub"]
-        },
-        ReturnValues='UPDATED_NEW',
-        UpdateExpression= 'SET #w = :weight, #flg = :flg, #time = :time',
-        ExpressionAttributeNames={
-            '#w': 'weight',
-            '#flg': 'nextTotalingFlg',
-            '#time': 'updatedAt'
-        },
-        ExpressionAttributeValues={
-            ':weight': Decimal(data["weight"]),
-            ':flg': 'T',
-            ':time': timestamp
-        }
-    )
+    item = {
+        'cognitoUserSub': sub,
+        'weight': Decimal(data["weight"]),
+        'createdAt': timestamp,
+        'updatedAt': timestamp,
+    }
+
+    # デバッグ用
+    print(item)
+
+    # TODO:subと同じものが存在したらエラーにしたい
+    table.put_item(Item=item)
 
     response_data = {
-        'massage' : 'Weight updated'
+        'massage' : 'Weight created'
     }
 
     response = {
