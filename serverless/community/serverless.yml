@@ -1,4 +1,4 @@
-service: slim-down
+service: slim-down-community
 
 frameworkVersion: ">=1.82.0 <3.0.0"
 
