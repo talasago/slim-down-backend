@@ -92,7 +92,6 @@ functions:
       COMMUNITY_INFO: ${self:provider.environment.COMMUNITY_INFO}
   get:
     handler: read.get
-    # FIXME:クエリ文字列パラメータが必要
     events:
       - http:
           path: /community/info/
@@ -108,7 +107,7 @@ functions:
     handler: read.get_list
     events:
       - http:
-          path: /community/info/
+          path: /community/info/list
           method: get
           cors: true
           authorizer:
