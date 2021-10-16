@@ -1,6 +1,9 @@
 import json
 import os
 import boto3
+from datetime import datetime
+from decimal import Decimal
+import pandas as pd
 
 dynamodb = boto3.resource('dynamodb')
 if os.getenv('IS_OFFLINE') is not None or \
@@ -11,25 +14,57 @@ if os.getenv('IS_OFFLINE') is not None or \
                               aws_access_key_id="DEFAULT_ACCESS_KEY",
                               aws_secret_access_key="DEFAULT_SECRET"
                               )
+tbl_commu_info = dynamodb.Table(os.environ['COMMUNITY_INFO'])
+tbl_commu_weight = dynamodb.Table(os.environ['COMMUNITY_WEIGHT'])
+
+
+def decimal_default_proc(obj):
+    if isinstance(obj, Decimal):
+        return float(obj)
+    raise TypeError
 
 
 def get_list(event, context):
-    table = dynamodb.Table(os.environ['COMMUNITY_INFO'])
+    today = datetime.now().strftime('%Y%m%d')
 
-    scaned_res: dict = table.scan(
-        ProjectionExpression="communityId,   \
-                              communityName, \
-                              communityOwner, \
-                              content"
+    scaned_res: dict = tbl_commu_info.scan(
+        ProjectionExpression="communityId,\
+                              communityName"
     )
     # ホントはページネーション対応が必要。LastEvaluated
     # communityOwnerはcognito見て名前だずべき
 
-    items = scaned_res.get('Items')
-    print(scaned_res)
+    commu_info_items = scaned_res.get('Items')
+    print(commu_info_items)
+
+    commu_weight_keys = []
+    for item in commu_info_items:
+        key = {
+            'communityId': item['communityId'],
+            'totalingDate': today
+        }
+        commu_weight_keys.append(key)
+
+    res_batch_get_item = dynamodb.batch_get_item(
+        RequestItems={
+            tbl_commu_weight.table_name: {
+                'Keys': commu_weight_keys,
+                'ProjectionExpression': "communityId,weight"
+            }
+        }
+    )
+
+    commu_weight_items = res_batch_get_item['Responses'][tbl_commu_weight.table_name]
+    print(res_batch_get_item)
+
+    df_commu_info = pd.DataFrame(commu_info_items)
+    df_commu_weight = pd.DataFrame(commu_weight_items)
+    df_commu_joined = pd.merge(df_commu_info, df_commu_weight,
+                               on='communityId', how='left')
+    commu_list = df_commu_joined.to_dict('records')
 
     response_data = {
-        'items': items
+        'items': commu_list
     }
 
     response = {
@@ -42,7 +77,7 @@ def get_list(event, context):
                 Authorization,X-Api-Key,X-Amz-Security-Token",
             "Access-Control-Allow-Credentials": "true"
         },
-        "body": json.dumps(response_data)
+        "body": json.dumps(response_data, default=decimal_default_proc)
     }
 
     return response
@@ -74,8 +109,8 @@ def get(event, context):
         }
         return response
 
-    table = dynamodb.Table(os.environ['COMMUNITY_INFO'])
-    item: dict = table.get_item(
+    tbl_commu_info = dynamodb.Table(os.environ['COMMUNITY_INFO'])
+    item: dict = tbl_commu_info.get_item(
         Key={'communityId': community_id},
         ProjectionExpression="communityId,   \
                               communityName, \
