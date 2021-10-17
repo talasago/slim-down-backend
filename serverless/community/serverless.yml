@@ -60,7 +60,22 @@ provider:
               - Ref: 'AWS::Region'
               - Ref: 'AWS::AccountId'
               - table/${self:provider.environment.COMMUNITY_INFO}
-
+        - Effect: Allow
+          Action:
+            - dynamodb:Query
+            - dynamodb:Scan
+            - dynamodb:GetItem
+            - dynamodb:PutItem
+            - dynamodb:UpdateItem
+            - dynamodb:DeleteItem
+            - dynamodb:BatchGetItem
+          Resource:
+            Fn::Join:
+            - ':'
+            - - 'arn:aws:dynamodb'
+              - Ref: 'AWS::Region'
+              - Ref: 'AWS::AccountId'
+              - table/${self:provider.environment.COMMUNITY_WEIGHT}
 functions:
   create:
     handler: create.create
@@ -92,7 +107,7 @@ functions:
     handler: read.get_list
     events:
       - http:
-          path: /community/info/
+          path: /community/info/list
           method: get
           cors: true
           authorizer:
@@ -182,6 +197,29 @@ resources:
         ProvisionedThroughput:
           ReadCapacityUnits: 1
           WriteCapacityUnits: 1
+    communityWeight:
+      Type: 'AWS::DynamoDB::Table'
+      # スタック削除時テーブルを残す
+      DeletionPolicy: Retain
+      Properties:
+        TableName: ${self:provider.environment.COMMUNITY_WEIGHT}
+        AttributeDefinitions:
+          -
+            AttributeName: communityId
+            AttributeType: S
+          -
+            AttributeName: totalingDate
+            AttributeType: S
+        KeySchema:
+          -
+            AttributeName: communityId
+            KeyType: HASH
+          -
+            AttributeName: totalingDate
+            KeyType: RANGE
+        ProvisionedThroughput:
+          ReadCapacityUnits: 5
+          WriteCapacityUnits: 5
     ApiGatewayAuthorizer:
       Type: AWS::ApiGateway::Authorizer
       Properties:
