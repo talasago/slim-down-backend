@@ -40,7 +40,7 @@ provider:
   region: ap-northeast-1
   endpointType: REGIONAL
   environment:
-    WEIGHT_TABLE: ${self:service}-weight-${opt:stage, self:provider.stage}
+    USER_WEIGHT_TABLE: ${self:service}-weight-${opt:stage, self:provider.stage}
   iamRoleStatements:
     - Effect: Allow
       Action:
@@ -50,7 +50,7 @@ provider:
         - dynamodb:PutItem
         - dynamodb:UpdateItem
         - dynamodb:DeleteItem
-      Resource: arn:aws:dynamodb:${opt:region, self:provider.region}:*:table/${self:provider.environment.WEIGHT_TABLE}
+      Resource: arn:aws:dynamodb:${opt:region, self:provider.region}:*:table/${self:provider.environment.USER_WEIGHT_TABLE}
 
 functions:
   create:
@@ -65,7 +65,7 @@ functions:
             authorizerId:
               Ref: ApiGatewayAuthorizer
     environment:
-      WEIGHT_TABLE: ${self:provider.environment.WEIGHT_TABLE}
+      USER_WEIGHT_TABLE: ${self:provider.environment.USER_WEIGHT_TABLE}
   get:
     handler: read.get
     events:
@@ -78,7 +78,7 @@ functions:
             authorizerId:
               Ref: ApiGatewayAuthorizer
     environment:
-      WEIGHT_TABLE: ${self:provider.environment.WEIGHT_TABLE}
+      USER_WEIGHT_TABLE: ${self:provider.environment.USER_WEIGHT_TABLE}
   update:
     handler: update.update
     events:
@@ -91,7 +91,7 @@ functions:
             authorizerId:
               Ref: ApiGatewayAuthorizer
     environment:
-      WEIGHT_TABLE: ${self:provider.environment.WEIGHT_TABLE}
+      USER_WEIGHT_TABLE: ${self:provider.environment.USER_WEIGHT_TABLE}
 
 resources:
   Resources:
@@ -100,7 +100,7 @@ resources:
       # スタック削除時テーブルを残す
       DeletionPolicy: Retain
       Properties:
-        TableName: ${self:provider.environment.WEIGHT_TABLE}
+        TableName: ${self:provider.environment.USER_WEIGHT_TABLE}
         AttributeDefinitions:
           -
             AttributeName: cognitoUserSub
