@@ -54,14 +54,18 @@ def get_list(event, context):
         }
     )
 
-    commu_weight_items = res_batch_get_item['Responses'][tbl_commu_weight.table_name]
+    commu_weight_items = res_batch_get_item['Responses'][tbl_commu_weight.table_name] # noqa #E501
     print(res_batch_get_item)
 
-    df_commu_info = pd.DataFrame(commu_info_items)
-    df_commu_weight = pd.DataFrame(commu_weight_items)
-    df_commu_joined = pd.merge(df_commu_info, df_commu_weight,
-                               on='communityId', how='left')
-    commu_list = df_commu_joined.to_dict('records')
+    # weightがなくてもエラーとはしない
+    if len(commu_weight_items) == 0:
+        commu_list = commu_info_items
+    else:
+        df_commu_info = pd.DataFrame(commu_info_items)
+        df_commu_weight = pd.DataFrame(commu_weight_items)
+        df_commu_joined = pd.merge(df_commu_info, df_commu_weight,
+                                   on='communityId', how='left')
+        commu_list = df_commu_joined.to_dict('records')
 
     response_data = {
         'items': commu_list
