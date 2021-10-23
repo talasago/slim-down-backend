@@ -96,7 +96,7 @@ def test_get_200():
     res_body = json.loads(res['body'])
 
     assert res['statusCode'] == 200
-    assert res_body['item']['communityId'] == expexted_body['communityId']
+    assert res_body['communityId'] == expexted_body['communityId']
 
 
 def test_update_200():

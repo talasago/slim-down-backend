@@ -91,6 +91,7 @@ def get(event, context):
     # デバッグ用
     print(event)
 
+    today = datetime.now().strftime('%Y%m%d')
     query_param = event.get('queryStringParameters')
 
     community_id = query_param.get('communityId')
@@ -113,8 +114,7 @@ def get(event, context):
         }
         return response
 
-    tbl_commu_info = dynamodb.Table(os.environ['COMMUNITY_INFO'])
-    item: dict = tbl_commu_info.get_item(
+    res_commu_info_item: dict = tbl_commu_info.get_item(
         Key={'communityId': community_id},
         ProjectionExpression="communityId,   \
                               communityName, \
@@ -123,10 +123,28 @@ def get(event, context):
                               createdAt, \
                               updatedAt"
     )
+    print(res_commu_info_item)
+    commu_info = res_commu_info_item.get('Item')
 
-    response_data = {
-        'item': item['Item']
-    }
+    res_commu_weight_item = tbl_commu_weight.get_item(
+        Key={
+            'communityId': commu_info['communityId'],
+            'totalingDate': today
+        },
+        ProjectionExpression='communityId,weight'
+    )
+
+    commu_weight = res_commu_weight_item.get('Item')
+
+    # weightがなくてもエラーとはしない
+    if commu_weight is None:
+        commu_detail = commu_info
+    else:
+        df_commu_info = pd.DataFrame(commu_info)
+        df_commu_weight = pd.DataFrame(commu_weight)
+        df_commu_joined = pd.merge(df_commu_info, df_commu_weight,
+                                   on='communityId', how='left')
+        commu_detail = df_commu_joined.to_dict('records')
 
     response = {
         "statusCode": 200,
@@ -138,7 +156,7 @@ def get(event, context):
                 Authorization,X-Api-Key,X-Amz-Security-Token",
             "Access-Control-Allow-Credentials": "true"
         },
-        "body": json.dumps(response_data)
+        "body": json.dumps(commu_detail)
     }
 
     return response
