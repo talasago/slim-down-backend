@@ -49,16 +49,21 @@ def weight_batch_update(event, context):
             }
         }
     )
-    commu_weight_items = res_batch_get_item['Responses'][table_commu_weight.table_name]
+    commu_weight_items = res_batch_get_item['Responses'][table_commu_weight.table_name] # noqa E501
 
     df_commu_info = pd.DataFrame(commu_info_items)
-    df_commu_weight = pd.DataFrame(commu_weight_items)
-    df_commu_joined = pd.merge(df_commu_info, df_commu_weight,
-                               on='communityId', how='left')
+    # weightがなくてもエラーとはしない
+    if len(commu_weight_items) == 0:
+        df_commu = df_commu_info
+    else:
+        df_commu_weight = pd.DataFrame(commu_weight_items)
+        df_commu_joined = pd.merge(df_commu_info, df_commu_weight,
+                                   on='communityId', how='left')
+        df_commu = df_commu_joined
 
     put_items = []
     # communityでループ
-    for row in df_commu_joined.itertuples():
+    for row in df_commu.itertuples():
         today_weight = Decimal(0)
 
         user_weight_keys = []
@@ -80,7 +85,7 @@ def weight_batch_update(event, context):
                 }
             )
 
-            user_weight_items = res_batch_get_item['Responses'][table_user_weight.table_name]
+            user_weight_items = res_batch_get_item['Responses'][table_user_weight.table_name] # noqa E501
             weight_sum = Decimal(0)
             for item in user_weight_items:
                 weight_sum = item['weight'] + weight_sum

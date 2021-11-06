@@ -28,6 +28,7 @@ yesterday = (datetime.now() - timedelta(days=1)).strftime('%Y%m%d')
 
 @pytest.fixture()
 def init_commu_weight():
+    # 先にcommuweightは全削除した方がいいかも
     commu_weight_items = [
         {
             'PutRequest': {
@@ -94,6 +95,20 @@ def init_commu_weight():
         }
     )
 
+    # commuweighレコードが存在しないテスト
+    community_weight.delete_item(
+        Key={
+            'communityId': 'test-commu-info3',
+            'totalingDate': today
+        }
+    )
+    community_weight.delete_item(
+        Key={
+            'communityId': 'test-commu-info3',
+            'totalingDate': yesterday
+        }
+    )
+
 
 def test_weight_batch_update(init_commu_weight):
     weight_batch_update.weight_batch_update('', '')
@@ -113,3 +128,11 @@ def test_weight_batch_update(init_commu_weight):
         }
     )
     assert item['Item']['weight'] == Decimal('333.4')
+
+    item = community_weight.get_item(
+        Key={
+            'communityId': 'test-commu-info3',
+            'totalingDate': today
+        }
+    )
+    assert item.get('Item').get('weight') == Decimal('0')

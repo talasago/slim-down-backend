@@ -1,0 +1,17 @@
+{
+  "TableName": "slim-down-community-info-local",
+  "Item": {
+    "communityId": {
+      "S": "test-commu-info3"
+    },
+    "communityName": {
+      "S": "community_name3"
+    },
+    "communityOwner": {
+      "S": "community_owner_sub3"
+    },
+    "content": {
+      "S": "content3"
+    }
+  }
+}
