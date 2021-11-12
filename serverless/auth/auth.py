@@ -24,6 +24,7 @@ def auth(event, context):
             ClientId = os.getenv("CLIENT_ID"),
             AuthParameters = {
                 'USERNAME': data['email'],
+                # FIXME:postデータでpasswordの平文をやり取りしているのは良くない
                 'PASSWORD': data['password']
             }
         )
@@ -42,10 +43,29 @@ def auth(event, context):
                      algorithms=["RS256"],
                      options={"verify_signature": False})["sub"]
 
+    try:
+        # ユーザーが所属しているコミュ
+        user_attrs = client.get_user(AccessToken=access_token).get('UserAttributes')
+        commu_id = None
+        for attr in user_attrs:
+            if attr.get('Name') == 'custom:community_id':
+                commu_id = attr['Value']
+    # TODO:エラーの種類分割。パスワードが一致しませんなど
+    except Exception as e:
+        print(e)
+        response = {
+            "header": res_headers,
+            "statusCode": 404,
+            "body": str(e)
+        }
+        return response
+
+
     user_info = {
         'accessToken': access_token,
         'idToken': id_token,
-        'sub': sub
+        'sub': sub,
+        'userBelongCommunityId': commu_id
     }
 
     response = {
