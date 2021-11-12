@@ -55,6 +55,9 @@ def weight_batch_update(event, context):
     # weightがなくてもエラーとはしない
     if len(commu_weight_items) == 0:
         df_commu = df_commu_info
+    # infoは必須
+    elif len(commu_info_items) == 0:
+        df_commu = None
     else:
         df_commu_weight = pd.DataFrame(commu_weight_items)
         df_commu_joined = pd.merge(df_commu_info, df_commu_weight,

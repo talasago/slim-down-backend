@@ -80,7 +80,7 @@ def test_get_list_200():
     assert list(res_body['items'][0].keys()) == expexted_body_keys
 
 
-def test_get_200():
+def test_get_200_1():
     expexted_body = {
         'communityId': 'test_commu2',
         'communityName': 'テストコミュニティ名',
@@ -96,7 +96,22 @@ def test_get_200():
     res_body = json.loads(res['body'])
 
     assert res['statusCode'] == 200
-    assert res_body['communityId'] == expexted_body['communityId']
+    assert res_body.get('communityId') == expexted_body['communityId']
+
+
+def test_get_200_2():
+    """
+    正常系2
+    """
+    event = {
+        'queryStringParameters': {
+            'communityId': 'test-community-info-not-exsist'
+        }
+    }
+    res = read.get(event, '')
+
+    assert res['statusCode'] == 200
+    assert json.loads(res['body']) is None
 
 
 def test_update_200():

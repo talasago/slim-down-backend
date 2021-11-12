@@ -60,6 +60,9 @@ def get_list(event, context):
     # weightがなくてもエラーとはしない
     if len(commu_weight_items) == 0:
         commu_list = commu_info_items
+    # infoは必須
+    elif len(commu_info_items) == 0:
+        commu_list = None
     else:
         df_commu_info = pd.DataFrame(commu_info_items)
         df_commu_weight = pd.DataFrame(commu_weight_items)
@@ -123,28 +126,31 @@ def get(event, context):
                               createdAt, \
                               updatedAt"
     )
-    print(res_commu_info_item)
     commu_info = res_commu_info_item.get('Item')
 
-    res_commu_weight_item = tbl_commu_weight.get_item(
-        Key={
-            'communityId': commu_info['communityId'],
-            'totalingDate': today
-        },
-        ProjectionExpression='communityId,weight'
-    )
-
-    commu_weight = res_commu_weight_item.get('Item')
-
-    # weightがなくてもエラーとはしない
-    if commu_weight is None:
-        commu_detail = commu_info
+    # infoは必須
+    if commu_info is None:
+        commu_detail = None
     else:
-        df_commu_info = pd.DataFrame(commu_info)
-        df_commu_weight = pd.DataFrame(commu_weight)
-        df_commu_joined = pd.merge(df_commu_info, df_commu_weight,
-                                   on='communityId', how='left')
-        commu_detail = df_commu_joined.to_dict('records')
+        res_commu_weight_item = tbl_commu_weight.get_item(
+            Key={
+                'communityId': commu_info['communityId'],
+                'totalingDate': today
+            },
+            ProjectionExpression='communityId,weight'
+        )
+
+        commu_weight = res_commu_weight_item.get('Item')
+
+        # weightがなくてもエラーとはしない
+        if commu_weight is None:
+            commu_detail = commu_info
+        else:
+            df_commu_info = pd.DataFrame(commu_info)
+            df_commu_weight = pd.DataFrame(commu_weight)
+            df_commu_joined = pd.merge(df_commu_info, df_commu_weight,
+                                       on='communityId', how='left')
+            commu_detail = df_commu_joined.to_dict('records')
 
     response = {
         "statusCode": 200,

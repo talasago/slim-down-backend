@@ -38,3 +38,8 @@ today="$(date +%Y%m%d)"
 input_param=$(sed "s/###TODAY###/${today}/g" /docker-entrypoint-initaws.d/dynamodb/community-weight.json)
 awslocal dynamodb put-item --table-name 'slim-down-community-weight-local' \
     --cli-input-json "${input_param}" || true
+
+today="$(date +%Y%m%d)"
+input_param=$(sed "s/###TODAY###/${today}/g" /docker-entrypoint-initaws.d/dynamodb/community-weight.json)
+awslocal dynamodb put-item --table-name 'slim-down-community-weight-local' \
+    --cli-input-json "${input_param}" || true
