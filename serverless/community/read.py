@@ -35,7 +35,7 @@ def get_list(event, context):
     # communityOwnerはcognito見て名前だずべき
 
     commu_info_items = scaned_res.get('Items')
-    print(commu_info_items)
+    print('commu_info_items', commu_info_items)
 
     commu_weight_keys = []
     for item in commu_info_items:
@@ -54,8 +54,8 @@ def get_list(event, context):
         }
     )
 
-    commu_weight_items = res_batch_get_item['Responses'][tbl_commu_weight.table_name] # noqa #E501
-    print(res_batch_get_item)
+    commu_weight_items = res_batch_get_item['Responses'][tbl_commu_weight.table_name] # noqa E501
+    print('res_batch_get_item', res_batch_get_item)
 
     # weightがなくてもエラーとはしない
     if len(commu_weight_items) == 0:

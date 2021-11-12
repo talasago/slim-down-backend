@@ -78,6 +78,8 @@ def test_get_list_200():
     res_body = json.loads(res['body'])
     assert res['statusCode'] == 200
     assert list(res_body['items'][0].keys()) == expexted_body_keys
+    for item in res_body['items']:
+        assert item.get('communityId') != "test-community-info-not-exsists"
 
 
 def test_get_200_1():
