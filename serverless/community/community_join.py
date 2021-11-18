@@ -75,6 +75,7 @@ def community_join(event, context):
         }
         return response
 
+    # TODO:エラー処理
     response = client_cip.update_user_attributes(
         UserAttributes=[{
             'Name': 'custom:community_id',
