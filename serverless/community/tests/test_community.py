@@ -57,7 +57,7 @@ def auth():
 
 def test_create_200():
     body = {
-        'communityId': 'test_commu2',
+        'communityId': 'test-commu2',
         'communityName': 'テストコミュニティ名',
         'communityOwnerSub': 'community_owner_sub',
         'content': 'これは\nコミュニティ情報作成のテストです'
@@ -82,17 +82,18 @@ def test_get_list_200():
         assert item.get('communityId') != "test-community-info-not-exsists"
 
 
-def test_get_200_1():
+def test_get_200_1(auth):
     expexted_body = {
-        'communityId': 'test_commu2',
+        'communityId': 'test-commu2',
         'communityName': 'テストコミュニティ名',
         'communityOwnerSub': 'community_owner_sub',
         'content': 'これは\nコミュニティ情報作成のテストです'
     }
     event = {
         'queryStringParameters': {
-            'communityId': 'test_commu2'
-        }
+            'communityId': 'test-commu2'
+        },
+        'headers': {'Authorization': auth['AuthenticationResult']['IdToken']}
     }
     res = read.get(event, '')
     res_body = json.loads(res['body'])
@@ -101,14 +102,15 @@ def test_get_200_1():
     assert res_body.get('communityId') == expexted_body['communityId']
 
 
-def test_get_200_2():
+def test_get_200_2(auth):
     """
     正常系2
     """
     event = {
         'queryStringParameters': {
             'communityId': 'test-community-info-not-exsist'
-        }
+        },
+        'headers': {'Authorization': auth['AuthenticationResult']['IdToken']}
     }
     res = read.get(event, '')
 
@@ -118,7 +120,7 @@ def test_get_200_2():
 
 def test_update_200():
     body = {
-        'communityId': 'test_commu2',
+        'communityId': 'test-commu2',
         'communityName': 'テストコミュニティXXX',
         'content': 'This is \n community-info'
     }
@@ -133,7 +135,7 @@ def test_update_200():
 
 def test_delete_200():
     body = {
-        'communityId': 'test_commu2',
+        'communityId': 'test-commu2',
     }
     event = {'body': json.dumps(body)}
 

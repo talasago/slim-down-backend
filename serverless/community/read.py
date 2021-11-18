@@ -1,6 +1,7 @@
 import json
 import os
 import boto3
+import jwt
 from datetime import datetime
 from decimal import Decimal
 import pandas as pd
@@ -54,7 +55,7 @@ def get_list(event, context):
         }
     )
 
-    commu_weight_items = res_batch_get_item['Responses'][tbl_commu_weight.table_name] # noqa E501
+    commu_weight_items = res_batch_get_item['Responses'][tbl_commu_weight.table_name]  # noqa E501
     print('res_batch_get_item', res_batch_get_item)
 
     # weightがなくてもエラーとはしない
@@ -96,6 +97,10 @@ def get(event, context):
 
     today = datetime.now().strftime('%Y%m%d')
     query_param = event.get('queryStringParameters')
+    token = event['headers']['Authorization']
+    sub = jwt.decode(token,
+                     algorithms=["RS256"],
+                     options={"verify_signature": False}).get('sub')
 
     community_id = query_param.get('communityId')
     if community_id is None:
@@ -127,7 +132,6 @@ def get(event, context):
                               updatedAt"
     )
     commu_info = res_commu_info_item.get('Item')
-
     # infoは必須
     if commu_info is None:
         commu_detail = None
@@ -137,20 +141,27 @@ def get(event, context):
                 'communityId': commu_info['communityId'],
                 'totalingDate': today
             },
-            ProjectionExpression='communityId,weight'
+            ProjectionExpression='communityId,weight,belongSubList'
         )
 
         commu_weight = res_commu_weight_item.get('Item')
-
         # weightがなくてもエラーとはしない
         if commu_weight is None:
             commu_detail = commu_info
         else:
-            df_commu_info = pd.DataFrame(commu_info)
+            # indexを入れたら動いた
+            df_commu_info = pd.DataFrame(commu_info, index=['0'])
             df_commu_weight = pd.DataFrame(commu_weight)
             df_commu_joined = pd.merge(df_commu_info, df_commu_weight,
                                        on='communityId', how='left')
-            commu_detail = df_commu_joined.to_dict('records')
+            commu_detail = df_commu_joined.to_dict('records')[0]
+
+            # df_commu_joinedのsubからweightテーブルのsubistに所属するかのflgを取得
+            # dsublistは返さない！
+            user_belongd_flg = False
+            if sub in commu_detail.pop('belongSubList'):
+                user_belongd_flg = True
+            commu_detail['userBelongFlg'] = user_belongd_flg
 
     response = {
         "statusCode": 200,
@@ -162,7 +173,12 @@ def get(event, context):
                 Authorization,X-Api-Key,X-Amz-Security-Token",
             "Access-Control-Allow-Credentials": "true"
         },
-        "body": json.dumps(commu_detail)
+        "body": json.dumps(commu_detail, default=decimal_default_proc)
     }
 
     return response
+
+
+def decimal_default_proc(obj): # noqa F811
+    if isinstance(obj, Decimal):
+        return float(obj)
