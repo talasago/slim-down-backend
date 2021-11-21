@@ -82,68 +82,6 @@ def test_get_list_200():
         assert item.get('communityId') != "test-community-info-not-exsists"
 
 
-def test_get_200_1(auth):
-    expexted_body = {
-        'communityId': 'test-commu2',
-        'communityName': 'テストコミュニティ名',
-        'communityOwnerSub': 'community_owner_sub',
-        'content': 'これは\nコミュニティ情報作成のテストです'
-    }
-    event = {
-        'queryStringParameters': {
-            'communityId': 'test-commu2'
-        },
-        'headers': {'Authorization': auth['AuthenticationResult']['IdToken']}
-    }
-    res = read.get(event, '')
-    res_body = json.loads(res['body'])
-
-    assert res['statusCode'] == 200
-    assert res_body.get('communityId') == expexted_body['communityId']
-
-
-def test_get_200_2(auth):
-    """
-    正常系2
-    """
-    event = {
-        'queryStringParameters': {
-            'communityId': 'test-community-info-not-exsist'
-        },
-        'headers': {'Authorization': auth['AuthenticationResult']['IdToken']}
-    }
-    res = read.get(event, '')
-
-    assert res['statusCode'] == 200
-    assert json.loads(res['body']) is None
-
-
-def test_update_200():
-    body = {
-        'communityId': 'test-commu2',
-        'communityName': 'テストコミュニティXXX',
-        'content': 'This is \n community-info'
-    }
-    event = {'body': json.dumps(body)}
-
-    res = update.update(event, '')
-    res_body = json.loads(res['body'])
-
-    assert res['statusCode'] == 200
-    assert res_body['communityName'] == body['communityName']
-
-
-def test_delete_200():
-    body = {
-        'communityId': 'test-commu2',
-    }
-    event = {'body': json.dumps(body)}
-
-    res = delete.delete(event, '')
-
-    assert res['statusCode'] == 200
-
-
 def test_community_join_200(auth):
     access_token = auth['AuthenticationResult']["AccessToken"]
 
@@ -188,8 +126,59 @@ def test_community_join_200(auth):
     assert exsist_flg
 
 
-def test_community_leave_200(auth):
+def test_get_200_1(auth):
+    expexted_body = {
+        'communityId': 'test-commu2',
+        'communityName': 'テストコミュニティ名',
+        'communityOwnerSub': 'community_owner_sub',
+        'content': 'これは\nコミュニティ情報作成のテストです'
+    }
+    event = {
+        'queryStringParameters': {
+            'communityId': 'test-commu2'
+        },
+        'headers': {'Authorization': auth['AuthenticationResult']['IdToken']}
+    }
+    res = read.get(event, '')
+    res_body = json.loads(res['body'])
 
+    assert res['statusCode'] == 200
+    assert res_body.get('communityId') == expexted_body['communityId']
+    assert res_body.get('userBelongFlg')
+
+
+def test_get_200_2(auth):
+    """
+    正常系2
+    """
+    event = {
+        'queryStringParameters': {
+            'communityId': 'test-community-info-not-exsist'
+        },
+        'headers': {'Authorization': auth['AuthenticationResult']['IdToken']}
+    }
+    res = read.get(event, '')
+
+    assert res['statusCode'] == 200
+    assert json.loads(res['body']) is None
+
+
+def test_update_200():
+    body = {
+        'communityId': 'test-commu2',
+        'communityName': 'テストコミュニティXXX',
+        'content': 'This is \n community-info'
+    }
+    event = {'body': json.dumps(body)}
+
+    res = update.update(event, '')
+    res_body = json.loads(res['body'])
+
+    assert res['statusCode'] == 200
+    assert res_body['communityName'] == body['communityName']
+
+
+def test_community_leave_200(auth):
     access_token = auth['AuthenticationResult']["AccessToken"]
 
     body = {
@@ -228,3 +217,14 @@ def test_community_leave_200(auth):
     attrs = user['UserAttributes']
     for attr in attrs:
         assert not attr['Name'] == 'custom:community_id'
+
+
+def test_delete_200():
+    body = {
+        'communityId': 'test-commu2',
+    }
+    event = {'body': json.dumps(body)}
+
+    res = delete.delete(event, '')
+
+    assert res['statusCode'] == 200

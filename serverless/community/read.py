@@ -149,19 +149,19 @@ def get(event, context):
         if commu_weight is None:
             commu_detail = commu_info
         else:
+            # weightテーブルのsubistにuserが所属するかのflgを設定
+            # sublistは返さない！
+            user_belongd_flg = False
+            if sub in commu_weight.pop('belongSubList'):
+                user_belongd_flg = True
+            commu_weight['userBelongFlg'] = user_belongd_flg
+
             # indexを入れたら動いた
+            df_commu_weight = pd.DataFrame(commu_weight, index=['0'])
             df_commu_info = pd.DataFrame(commu_info, index=['0'])
-            df_commu_weight = pd.DataFrame(commu_weight)
             df_commu_joined = pd.merge(df_commu_info, df_commu_weight,
                                        on='communityId', how='left')
             commu_detail = df_commu_joined.to_dict('records')[0]
-
-            # df_commu_joinedのsubからweightテーブルのsubistに所属するかのflgを取得
-            # dsublistは返さない！
-            user_belongd_flg = False
-            if sub in commu_detail.pop('belongSubList'):
-                user_belongd_flg = True
-            commu_detail['userBelongFlg'] = user_belongd_flg
 
     response = {
         "statusCode": 200,
