@@ -66,7 +66,7 @@ def community_join(event, context):
             'headers': {
                 "Content-type": "application/json",
                 "Access-Control-Allow-Origin": "*",
-                "Access-Control-Allow-Methods": "1",
+                "Access-Control-Allow-Methods": "PUT",
                 "Access-Control-Allow-Headers": "Content-Type,X-Amz-Date, \
                     Authorization,X-Api-Key,X-Amz-Security-Token",
                 "Access-Control-Allow-Credentials": "true"
