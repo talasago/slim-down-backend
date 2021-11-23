@@ -1,5 +1,5 @@
 import json
-from models.community_weight import CommunityWeight, CommunityWeightRepository
+from models.community_weight import CommunityWeightRepository
 import datetime
 import os
 import boto3
@@ -20,7 +20,7 @@ def community_join(event, context):
     data = json.loads(event['body'])
     community_id: str = data.get('communityId')
     sub: str = data.get('sub')
-    access_token: str = event['headers']['Authorization']['AccessToken']
+    access_token: str = event['headers']['Authorization']
 
     if community_id is None or\
        sub is None or \

@@ -91,9 +91,7 @@ def test_community_join_200(auth):
     }
 
     event = {
-        'headers': {'Authorization': {
-            'AccessToken': access_token
-        }},
+        'headers': {'Authorization': access_token},
         'body': json.dumps(body)
     }
 
@@ -187,9 +185,7 @@ def test_community_leave_200(auth):
     }
 
     event = {
-        'headers': {'Authorization': {
-            'AccessToken': access_token
-        }},
+        'headers': {'Authorization': access_token},
         'body': json.dumps(body)
     }
 
