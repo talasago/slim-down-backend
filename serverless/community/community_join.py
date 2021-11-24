@@ -56,6 +56,8 @@ def community_join(event, context):
 
     try:
         cw = CommunityWeightRepository.find_by(community_id, totaling_date)
+        if cw is None:
+            raise LookupError('communityWeightテーブルにレコードが存在しません')
         cw.sub_add(sub)
         cw.next_totaling_flg = 'T'
         cw.update_item()
@@ -71,7 +73,7 @@ def community_join(event, context):
                     Authorization,X-Api-Key,X-Amz-Security-Token",
                 "Access-Control-Allow-Credentials": "true"
             },
-            "body": {"massage": str(e)}
+            "body": {"massage": json.dumps(str(e))}
         }
         return response
 

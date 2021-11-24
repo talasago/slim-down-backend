@@ -98,12 +98,14 @@ class CommunityWeightRepository:
             ProjectionExpression="belongSubList"
         )
 
-        cw = CommunityWeight(
-            community_id,
-            totaling_date,
-            weight=res_get['Item'].get('weight'),
-            next_totaling_flg=res_get['Item'].get('nextTotalingFlg'),
-            belong_sub_list=res_get['Item'].get('belongSubList')
-        )
+        cw = None
+        if res_get.get('Item') is not None:
+            cw = CommunityWeight(
+                community_id,
+                totaling_date,
+                weight=res_get['Item'].get('weight'),
+                next_totaling_flg=res_get['Item'].get('nextTotalingFlg'),
+                belong_sub_list=res_get['Item'].get('belongSubList')
+            )
 
         return cw
