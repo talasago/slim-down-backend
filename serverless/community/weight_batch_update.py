@@ -71,8 +71,10 @@ def weight_batch_update(event, context):
 
         user_weight_keys = []
         belong_sub_list = []
-        # nanの場合は処理しない
-        if isinstance(row.belongSubList, list):
+        # 属性が存在しないorNaNの場合は処理しない
+        print(row, "row")
+        if hasattr(row, 'belongSubList') and \
+           isinstance(row.belongSubList, list):
             for sub in row.belongSubList:
                 user_weight_keys.append({'cognitoUserSub': sub})
                 belong_sub_list.append(sub)
