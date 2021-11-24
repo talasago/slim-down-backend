@@ -26,12 +26,13 @@ def community_join(event, context):
        sub is None or \
        access_token is None:
 
+        massage = ""
         if community_id is None:
-            massage = 'コミュニティIDは必須です。'
+            massage += 'コミュニティIDは必須です。'
         if sub is None:
             massage += 'subは必須です。'
         if access_token is None:
-            massage += 'コミュニティIDは必須です。'
+            massage += 'アクセストークンは必須です。'
 
         response_data = {
             'massage': massage

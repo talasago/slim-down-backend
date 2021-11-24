@@ -20,16 +20,19 @@ def community_leave(event, context):
     data = json.loads(event['body'])
     community_id: str = data.get('communityId')
     sub: str = data.get('sub')
-    access_token: str = event['headers']['Authorization']
+    access_token: str = data.get('AccessToken')
 
     if community_id is None or\
        sub is None or \
        access_token is None:
 
+        massage = ""
         if community_id is None:
             massage = 'コミュニティIDは必須です。'
         if sub is None:
             massage += 'subは必須です。'
+        if access_token is None:
+            massage += 'コミュニティIDは必須です。'
 
         response_data = {
             'massage': massage
@@ -54,6 +57,8 @@ def community_leave(event, context):
 
     try:
         cw = CommunityWeightRepository.find_by(community_id, totaling_date)
+        if cw is None:
+            raise LookupError('communityWeightテーブルにレコードが存在しません')
         cw.sub_remove(sub)
         cw.next_totaling_flg = 'T'
         cw.update_item()
@@ -69,10 +74,11 @@ def community_leave(event, context):
                     Authorization,X-Api-Key,X-Amz-Security-Token",
                 "Access-Control-Allow-Credentials": "true"
             },
-            "body": {"massage": str(e)}
+            "body": {"massage": json.dumps(str(e))}
         }
         return response
 
+    # TODO:エラー処理
     response = client_cip.delete_user_attributes(
         UserAttributeNames=[
             'custom:community_id'
