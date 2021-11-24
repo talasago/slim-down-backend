@@ -20,7 +20,7 @@ def community_join(event, context):
     data = json.loads(event['body'])
     community_id: str = data.get('communityId')
     sub: str = data.get('sub')
-    access_token: str = event['headers']['Authorization']
+    access_token: str = data.get('AccessToken')
 
     if community_id is None or\
        sub is None or \
