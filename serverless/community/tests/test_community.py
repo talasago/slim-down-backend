@@ -84,14 +84,16 @@ def test_get_list_200():
 
 def test_community_join_200(auth):
     access_token = auth['AuthenticationResult']["AccessToken"]
+    id_token = auth['AuthenticationResult']["IdToken"]
 
     body = {
         'communityId': 'test-commu2',
-        'sub': '76e6f480-5f0a-4863-97f8-aff844774a5c'
+        'sub': '76e6f480-5f0a-4863-97f8-aff844774a5c',
+        'AccessToken': access_token
     }
 
     event = {
-        'headers': {'Authorization': access_token},
+        'headers': {'Authorization': id_token},
         'body': json.dumps(body)
     }
 
@@ -178,14 +180,16 @@ def test_update_200():
 
 def test_community_leave_200(auth):
     access_token = auth['AuthenticationResult']["AccessToken"]
+    id_token = auth['AuthenticationResult']["IdToken"]
 
     body = {
         'communityId': 'test-commu2',
-        'sub': '76e6f480-5f0a-4863-97f8-aff844774a5c'
+        'sub': '76e6f480-5f0a-4863-97f8-aff844774a5c',
+        'AccessToken': access_token
     }
 
     event = {
-        'headers': {'Authorization': access_token},
+        'headers': {'Authorization': id_token},
         'body': json.dumps(body)
     }
 
