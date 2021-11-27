@@ -1,6 +1,6 @@
 import boto3
 import os
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 import pandas as pd
 from decimal import Decimal
 
@@ -25,8 +25,9 @@ def weight_batch_update(event, context):
     print(res_scan)
     commu_info_items = res_scan['Items']
 
-    today = datetime.now().strftime('%Y%m%d')
-    yesterday = (datetime.now() - timedelta(days=1)).strftime('%Y%m%d')
+    jst = timezone(timedelta(hours=9), 'JST')
+    today = datetime.now(jst).strftime('%Y%m%d')
+    yesterday = (datetime.now(jst) - timedelta(days=1)).strftime('%Y%m%d')
     timestamp = str(datetime.now())
 
     # レスポンスに LastEvaluatedKey が含まれなくなるまでループ処理を実行

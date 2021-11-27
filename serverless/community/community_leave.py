@@ -1,6 +1,6 @@
 import json
 from models.community_weight import CommunityWeightRepository
-import datetime
+from datetime import datetime, timedelta, timezone
 import os
 import boto3
 from boto3.session import Session
@@ -52,7 +52,8 @@ def community_leave(event, context):
         }
         return response
 
-    today = datetime.datetime.now()
+    jst = timezone(timedelta(hours=9), 'JST')
+    today = datetime.now(jst)
     totaling_date = today.strftime('%Y%m%d')
 
     try:
